@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "F:\\Projectlibrary\\RN_BE_API\\RN_BE_API\\RN_BE_API.csproj": {}
+    "F:\\Projectlibrary\\NetCore70BE\\RN_BE_API\\RN_BE_API\\RN_BE_API.csproj": {}
   },
   "projects": {
-    "F:\\Projectlibrary\\RN_BE_API\\RN_BE_API\\RN_BE_API.csproj": {
+    "F:\\Projectlibrary\\NetCore70BE\\RN_BE_API\\RN_BE_API\\RN_BE_API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "F:\\Projectlibrary\\RN_BE_API\\RN_BE_API\\RN_BE_API.csproj",
+        "projectUniqueName": "F:\\Projectlibrary\\NetCore70BE\\RN_BE_API\\RN_BE_API\\RN_BE_API.csproj",
         "projectName": "RN_BE_API",
-        "projectPath": "F:\\Projectlibrary\\RN_BE_API\\RN_BE_API\\RN_BE_API.csproj",
+        "projectPath": "F:\\Projectlibrary\\NetCore70BE\\RN_BE_API\\RN_BE_API\\RN_BE_API.csproj",
         "packagesPath": "C:\\Users\\z2332\\.nuget\\packages\\",
-        "outputPath": "F:\\Projectlibrary\\RN_BE_API\\RN_BE_API\\obj\\",
+        "outputPath": "F:\\Projectlibrary\\NetCore70BE\\RN_BE_API\\RN_BE_API\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
