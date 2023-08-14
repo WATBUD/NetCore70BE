@@ -1,0 +1,41 @@
+is_global = true
+build_property.TargetFramework = net7.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = RN_BE_API
+build_property.RootNamespace = RN_BE_API
+build_property.ProjectDir = F:\Projectlibrary\RN_BE_API\RN_BE_API\
+build_property.RazorLangVersion = 7.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = F:\Projectlibrary\RN_BE_API\RN_BE_API
+build_property._RazorSourceGeneratorDebug = 
+
+[F:/Projectlibrary/RN_BE_API/RN_BE_API/Views/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/Projectlibrary/RN_BE_API/RN_BE_API/Views/TodoItems/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVG9kb0l0ZW1zXENyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/Projectlibrary/RN_BE_API/RN_BE_API/Views/TodoItems/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVG9kb0l0ZW1zXERlbGV0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/Projectlibrary/RN_BE_API/RN_BE_API/Views/TodoItems/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVG9kb0l0ZW1zXERldGFpbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/Projectlibrary/RN_BE_API/RN_BE_API/Views/TodoItems/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVG9kb0l0ZW1zXEVkaXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/Projectlibrary/RN_BE_API/RN_BE_API/Views/TodoItems/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVG9kb0l0ZW1zXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
