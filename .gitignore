@@ -1,0 +1,4 @@
+NetCore60/NetCore60/publish-folder
+*.vsidx
+bin/
+obj/
