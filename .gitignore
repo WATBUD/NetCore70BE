@@ -15,5 +15,8 @@ obj/
 # Visual Studio Code
 .vscode/
 
+# MSBuild publish profiles
+*.pubxml
+
 NetCore60/NetCore60/publish-folder
 
