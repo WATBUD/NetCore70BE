@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\NetCore60.props" />
+</Project>

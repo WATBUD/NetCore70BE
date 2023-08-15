@@ -1,0 +1,17 @@
+F:\Projectlibrary\NetCoreBE\NetCore60\NetCore60\obj\Release\net6.0\PubTmp\Out\NetCore60.exe
+F:\Projectlibrary\NetCoreBE\NetCore60\NetCore60\obj\Release\net6.0\PubTmp\Out\publish-folder\web.config
+F:\Projectlibrary\NetCoreBE\NetCore60\NetCore60\obj\Release\net6.0\PubTmp\Out\web.config
+F:\Projectlibrary\NetCoreBE\NetCore60\NetCore60\obj\Release\net6.0\PubTmp\Out\appsettings.Development.json
+F:\Projectlibrary\NetCoreBE\NetCore60\NetCore60\obj\Release\net6.0\PubTmp\Out\appsettings.json
+F:\Projectlibrary\NetCoreBE\NetCore60\NetCore60\obj\Release\net6.0\PubTmp\Out\publish-folder\appsettings.Development.json
+F:\Projectlibrary\NetCoreBE\NetCore60\NetCore60\obj\Release\net6.0\PubTmp\Out\publish-folder\appsettings.json
+F:\Projectlibrary\NetCoreBE\NetCore60\NetCore60\obj\Release\net6.0\PubTmp\Out\publish-folder\NetCore60.deps.json
+F:\Projectlibrary\NetCoreBE\NetCore60\NetCore60\obj\Release\net6.0\PubTmp\Out\publish-folder\NetCore60.runtimeconfig.json
+F:\Projectlibrary\NetCoreBE\NetCore60\NetCore60\obj\Release\net6.0\PubTmp\Out\NetCore60.dll
+F:\Projectlibrary\NetCoreBE\NetCore60\NetCore60\obj\Release\net6.0\PubTmp\Out\NetCore60.deps.json
+F:\Projectlibrary\NetCoreBE\NetCore60\NetCore60\obj\Release\net6.0\PubTmp\Out\NetCore60.runtimeconfig.json
+F:\Projectlibrary\NetCoreBE\NetCore60\NetCore60\obj\Release\net6.0\PubTmp\Out\NetCore60.pdb
+F:\Projectlibrary\NetCoreBE\NetCore60\NetCore60\obj\Release\net6.0\PubTmp\Out\Microsoft.OpenApi.dll
+F:\Projectlibrary\NetCoreBE\NetCore60\NetCore60\obj\Release\net6.0\PubTmp\Out\Swashbuckle.AspNetCore.Swagger.dll
+F:\Projectlibrary\NetCoreBE\NetCore60\NetCore60\obj\Release\net6.0\PubTmp\Out\Swashbuckle.AspNetCore.SwaggerGen.dll
+F:\Projectlibrary\NetCoreBE\NetCore60\NetCore60\obj\Release\net6.0\PubTmp\Out\Swashbuckle.AspNetCore.SwaggerUI.dll
