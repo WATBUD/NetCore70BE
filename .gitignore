@@ -1,4 +1,19 @@
-NetCore60/NetCore60/publish-folder
-*.vsidx
+# Visual Studio temporary files
+.vscode/
+.vs/
 bin/
 obj/
+*.suo
+*.user
+*.userprefs
+*.vscode
+
+# User-specific files
+*.rsuser
+*.sln.docstates
+
+# Visual Studio Code
+.vscode/
+
+NetCore60/NetCore60/publish-folder
+
