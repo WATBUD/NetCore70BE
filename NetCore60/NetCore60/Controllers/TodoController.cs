@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NetCore60.Models;
+using NetCore60.Services;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,9 +10,16 @@ namespace TodoApi.Controllers
     [ApiController]
     public class TodoController : ControllerBase
     {
+        private readonly IDatabaseService _databaseService;
+
+        public TodoController(IDatabaseService databaseService)//Constructor
+        {
+            _databaseService = databaseService;
+        }
+
+ 
         private static List<TodoItem> _items = new List<TodoItem>();
         private static long _nextId = 1;
-
         [HttpGet]
         public ActionResult<IEnumerable<TodoItem>> Get()
         {
