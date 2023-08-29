@@ -47,9 +47,9 @@ public partial class RnNetCoreDbContext : DbContext
 
         modelBuilder.Entity<RecordLogTable>(entity =>
         {
-            entity
-                .HasNoKey()
-                .ToTable("RecordLogTable");
+            entity.HasKey(e => e.DataText).HasName("PRIMARY");
+
+            entity.ToTable("RecordLogTable");
 
             entity.Property(e => e.DataText).HasMaxLength(200);
         });
