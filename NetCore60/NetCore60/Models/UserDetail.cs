@@ -1,24 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+//using Newtonsoft.Json;
 
 namespace NetCore60.Models;
-
-public partial class VUsersDetail
+/// <summary>
+/// Represents a user with their privacy settings.
+/// </summary>
+public partial class UserDetail
 {
-    public int UserId { get; set; }
-
-    public string Account { get; set; } = null!;
-
-    public string Username { get; set; } = null!;
-
-    public string Password { get; set; } = null!;
-
-    public string Email { get; set; } = null!;
-
-    public DateTime? CreatedAt { get; set; }
-
-    public DateTime? UpdatedAt { get; set; }
-
     public int UdUserId { get; set; }
 
     public string? Gender { get; set; }
@@ -43,5 +32,8 @@ public partial class VUsersDetail
 
     public string? SocialLinks { get; set; }
 
+
     public bool? IsBanned { get; set; }
+
+    public virtual User UdUser { get; set; } = null!;
 }

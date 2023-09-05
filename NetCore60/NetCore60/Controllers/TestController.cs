@@ -22,20 +22,19 @@ namespace TodoApi.Controllers
         //    string connectionStatus = _databaseService.Connect();
         //    return connectionStatus;
         //}
-        private readonly DatabaseService _databaseService;
+        private readonly RNDatingService _databaseService;
 
-        public TestController(DatabaseService databaseService) // Constructor
+        public TestController(RNDatingService databaseService) // Constructor
         {
             _databaseService = databaseService;
         }
 
-        [HttpGet("testconnection")]
-        public ActionResult<string> TestConnection()
-        {
-            _databaseService.testDbContext();
-            string connectionStatus = _databaseService.Connect();
-            return connectionStatus;
-        }
+        //[HttpGet("testconnection")]
+        //public ActionResult<string> TestConnection()
+        //{
+        //    string connectionStatus = _databaseService.Connect();
+        //    return connectionStatus;
+        //}
 
     }
 }

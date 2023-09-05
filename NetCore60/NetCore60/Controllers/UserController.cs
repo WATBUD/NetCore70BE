@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.OpenApi.Any;
 using NetCore60.Models;
 using NetCore60.Services;
-using System.Collections.Generic;
+using Swashbuckle.AspNetCore.Annotations;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace TodoApi.Controllers
@@ -22,9 +25,9 @@ namespace TodoApi.Controllers
         //    string connectionStatus = _databaseService.Connect();
         //    return connectionStatus;
         //}
-        private readonly DatabaseService _databaseService;
+        private readonly RNDatingService _databaseService;
 
-        public UserController(DatabaseService databaseService) // Constructor
+        public UserController(RNDatingService databaseService) // Constructor
         {
             _databaseService = databaseService;
         }
@@ -32,22 +35,18 @@ namespace TodoApi.Controllers
         [HttpGet("testconnection")]
         public ActionResult<string> TestConnection()
         {
-            _databaseService.testDbContext();
-            string connectionStatus = _databaseService.Connect();
+            string connectionStatus = _databaseService.testConnectionDatabase();
             return connectionStatus;
         }
 
-        [HttpPost]
-        public ActionResult<User> Create(string _username, string _password)
+        [HttpPost("CreateUser")]
+        public ActionResult<User> Create([Required] string _account, [Required] string _password, [Required] string _email)
         {
-            //item.Id = _nextId++;
-            //_items.Add(item);
-            string newUserId = _databaseService.InsertUserAccount(_username, _password);
-
+            string newUserId = _databaseService.InsertUserAccount(_account, _password, _email);
             return Ok(newUserId);
             //return CreatedAtAction(nameof(GetUserById), new { id = newUserId }, item);
         }
-        [HttpGet("{id}")]
+        [HttpGet("CheckByID/{id}")]
         public IActionResult GetUserById(int id)
         {
             // 通过 _userService 获取用户信息
@@ -61,6 +60,84 @@ namespace TodoApi.Controllers
 
             return Ok(user);
         }
+
+        [HttpGet("GetUserDetail/{id}")]
+        public IActionResult GetUserDetail(int id)
+        {
+            // 通过 _userService 获取用户信息
+            var user = _databaseService.GetUserDetail(id);
+
+            if (user == null)
+            {
+                //return NotFound();
+                return Ok("用戶名不存在");
+            }
+
+            return Ok(user);
+        }
+
+
+        [HttpPut("UpdateUserPassWord")]
+        [SwaggerOperation(
+    Summary = "Update user details",
+    Description = "This endpoint allows you to update user details such as name, email, etc.",
+    Tags = new[] { "User" })] // 将操作标记为 "User" 标签)]
+        public IActionResult UpdateUserPassWord([Required] int _user_id, [Required] string _password)
+        {
+            var user = _databaseService.UpdateUserPassword(_user_id, _password);
+            if (user == null)
+            {
+                //return NotFound();
+                return Ok("用戶ID不存在");
+            }
+            // 构建包含更新成功消息的 OkObjectResult
+            var successMessage = "密码更新成功";
+            var result = new OkObjectResult(new { Message = successMessage, Data = user });
+            return result;
+        }
+
+
+        /// <summary>
+        /// Update user's password.
+        /// </summary>
+        /// <remarks>
+        /// This endpoint allows you to update a user's password.
+        /// 
+        /// Example request:
+        /// {
+        ///   "_user_id": 123,
+        ///   "_password": "new_password123"
+        /// }
+        /// </remarks>
+        /// <param name="_VUsersDetail.UserId">The ID of the user to update.</param>
+        /// <returns>Returns a response indicating the result of the password update.</returns>
+        [HttpPost("UpdateUserDetail")]
+        [SwaggerResponse(200, "Success")]
+        [SwaggerResponse(400, "Bad Request")]
+        [SwaggerResponse(500, "Internal Server Error")]
+        public IActionResult UpdateUserDetail(VUsersDetail _VUsersDetail)
+        {
+            var callbackResult = _databaseService.UpdateUserDetail(_VUsersDetail);
+            if (callbackResult==null)
+            {
+                //var user = _databaseService.UpdateUserDetail((string)_VUsersDetail);
+                return Ok("用戶ID不存在");//
+            }
+            else if (callbackResult?.GetType() == typeof(string))
+            {
+                //var user = _databaseService.UpdateUserDetail((string)_VUsersDetail);
+                return Ok(callbackResult);// "用戶ID不存在"
+            }
+            // 构建包含更新成功消息的 OkObjectResult
+            else
+            {
+                var successMessage = "密码更新成功";
+                var result = new OkObjectResult(new { Message = successMessage, Data = callbackResult });
+                return result;
+            }
+
+        }
+
 
     }
 }
