@@ -8,6 +8,7 @@ namespace TodoApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiExplorerSettings(GroupName = "G_Todo")]
     public class TodoController : ControllerBase
     {
         private readonly IDatabaseService _databaseService;

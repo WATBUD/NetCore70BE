@@ -8,6 +8,7 @@ namespace TodoApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiExplorerSettings(GroupName = "G_Test")]
     public class TestController : ControllerBase
     {
         //private readonly IDatabaseService _databaseService;
@@ -29,12 +30,13 @@ namespace TodoApi.Controllers
             _databaseService = databaseService;
         }
 
-        //[HttpGet("testconnection")]
-        //public ActionResult<string> TestConnection()
-        //{
-        //    string connectionStatus = _databaseService.Connect();
-        //    return connectionStatus;
-        //}
+
+        [HttpGet("testconnection")]
+        public ActionResult<string> TestConnection()
+        {
+            string connectionStatus = _databaseService.testConnectionDatabase();
+            return connectionStatus;
+        }
 
     }
 }

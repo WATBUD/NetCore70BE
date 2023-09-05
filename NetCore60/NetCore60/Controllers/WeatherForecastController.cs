@@ -4,6 +4,7 @@ namespace NetCore60.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [ApiExplorerSettings(GroupName = "G_Test")]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries = new[]

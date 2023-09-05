@@ -5,12 +5,14 @@ using NetCore60.Services;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.Metrics;
 using System.Linq;
 
 namespace TodoApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiExplorerSettings(GroupName = "G_User")]
     public class UserController : ControllerBase
     {
         //private readonly IDatabaseService _databaseService;
@@ -31,14 +33,6 @@ namespace TodoApi.Controllers
         {
             _databaseService = databaseService;
         }
-
-        [HttpGet("testconnection")]
-        public ActionResult<string> TestConnection()
-        {
-            string connectionStatus = _databaseService.testConnectionDatabase();
-            return connectionStatus;
-        }
-
         [HttpPost("CreateUser")]
         public ActionResult<User> Create([Required] string _account, [Required] string _password, [Required] string _email)
         {
@@ -61,6 +55,16 @@ namespace TodoApi.Controllers
             return Ok(user);
         }
 
+
+        /// <summary> 
+        ///     获取用户信息
+        /// </summary>
+        /// <param name="id">Member Id</param> 
+        /// <response code="200">OK</response> 
+        /// <response code="400">Not found</response> 
+        /// <returns></returns> 
+        /// <remarks>注意事項</remarks> 
+        /// 
         [HttpGet("GetUserDetail/{id}")]
         public IActionResult GetUserDetail(int id)
         {
@@ -76,12 +80,7 @@ namespace TodoApi.Controllers
             return Ok(user);
         }
 
-
         [HttpPut("UpdateUserPassWord")]
-        [SwaggerOperation(
-    Summary = "Update user details",
-    Description = "This endpoint allows you to update user details such as name, email, etc.",
-    Tags = new[] { "User" })] // 将操作标记为 "User" 标签)]
         public IActionResult UpdateUserPassWord([Required] int _user_id, [Required] string _password)
         {
             var user = _databaseService.UpdateUserPassword(_user_id, _password);
@@ -96,24 +95,24 @@ namespace TodoApi.Controllers
             return result;
         }
 
-
         /// <summary>
         /// Update user's password.
         /// </summary>
         /// <remarks>
         /// This endpoint allows you to update a user's password.
-        /// 
         /// Example request:
-        /// {
-        ///   "_user_id": 123,
-        ///   "_password": "new_password123"
-        /// }
+        ///"relationship_status" ENUM=>: 'Single','Married','Divorced','Other'.<br/>
+        ///"looking_for": ENUM=>'Friendship','Dating','Long-term Relationship','Other'.<br/>
+        ///"privacySettings" JSON=>: '{"key": "value"}'.<br/>
+        ///"social_links": JSON=>'{"key": "value"}'.<br/>
         /// </remarks>
+        /// <response code="200">OK</response> 
+        /// <response code="400">Not found</response> 
         /// <param name="_VUsersDetail.UserId">The ID of the user to update.</param>
         /// <returns>Returns a response indicating the result of the password update.</returns>
         [HttpPost("UpdateUserDetail")]
-        [SwaggerResponse(200, "Success")]
-        [SwaggerResponse(400, "Bad Request")]
+        //[SwaggerResponse(200, "Success")]
+        //[SwaggerResponse(400, "Bad Request")]
         [SwaggerResponse(500, "Internal Server Error")]
         public IActionResult UpdateUserDetail(VUsersDetail _VUsersDetail)
         {
