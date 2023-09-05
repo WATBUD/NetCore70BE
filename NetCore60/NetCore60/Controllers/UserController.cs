@@ -40,6 +40,16 @@ namespace TodoApi.Controllers
             return Ok(newUserId);
             //return CreatedAtAction(nameof(GetUserById), new { id = newUserId }, item);
         }
+
+        /// <summary> 
+        ///     获取用户信息
+        /// </summary>
+        /// <param name="id">Member Id</param> 
+        /// <response code="200">OK</response> 
+        /// <response code="400">Not found</response> 
+        /// <returns></returns> 
+        /// <remarks>注意事項</remarks> 
+        /// 
         [HttpGet("CheckByID/{id}")]
         public IActionResult GetUserById(int id)
         {
@@ -96,10 +106,9 @@ namespace TodoApi.Controllers
         }
 
         /// <summary>
-        /// Update user's password.
+        /// Update user's Detail.
         /// </summary>
         /// <remarks>
-        /// This endpoint allows you to update a user's password.
         /// Example request:
         ///"relationship_status" ENUM=>: 'Single','Married','Divorced','Other'.<br/>
         ///"looking_for": ENUM=>'Friendship','Dating','Long-term Relationship','Other'.<br/>
@@ -109,7 +118,7 @@ namespace TodoApi.Controllers
         /// <response code="200">OK</response> 
         /// <response code="400">Not found</response> 
         /// <param name="_VUsersDetail.UserId">The ID of the user to update.</param>
-        /// <returns>Returns a response indicating the result of the password update.</returns>
+        /// <returns>Returns a response indicating the result of the Detail update.</returns>
         [HttpPost("UpdateUserDetail")]
         //[SwaggerResponse(200, "Success")]
         //[SwaggerResponse(400, "Bad Request")]

@@ -5,6 +5,7 @@ using NetCore60.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Swashbuckle.AspNetCore.SwaggerUI;
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -44,8 +45,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("G_Test", new OpenApiInfo { Title = "TestAPI V1", Version = "G_Test" });
-    //c.SwaggerDoc("v2", new OpenApiInfo { Title = "API V2", Version = "v2" });
     c.SwaggerDoc("G_User", new OpenApiInfo { Title = "Users API", Version = "G_User" });
+
+    c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "NetCore60.xml")); // XML 注释文件路径
+
 
     // Get and display Swashbuckle version
     //var swaggerGenVersion = typeof(SwaggerGenerator).Assembly.GetName().Version;
@@ -54,11 +57,6 @@ builder.Services.AddSwaggerGen(c =>
 
     c.SchemaFilter<DateOnlySchemaFilter>(); // 自定义日期字段的显示方式
     c.SchemaFilter<RemoveCreatedAtPropertySchemaFilter>();
-
-    c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "UsersAPI.xml")); // XML 注释文件路径
-
-
-
 
     //// 启用 XML 注释，并指定 XML 文件的路径
     //var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -73,18 +71,21 @@ if (app.Environment.IsDevelopment())
 {
     app.UseMiddleware<SwaggerUIMiddleware>();
     app.UseSwagger();
-    //app.UseSwaggerUI();
+    app.UseSwaggerUI();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/G_Test/swagger.json", "TestAPI V1");
-        c.RoutePrefix = "Test";
-    });
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/G_User/swagger.json", "UsersAPI V2");
-        c.RoutePrefix = "User";
+        c.SwaggerEndpoint("/swagger/G_User/swagger.json", "UsersAPI");
+        c.SwaggerEndpoint("/swagger/G_Test/swagger.json", "TestAPI");
+        c.RoutePrefix = "api";
+
+        //c.RoutePrefix = "Test";
 
     });
+    //app.UseSwaggerUI(c =>
+    //{
+    //    c.SwaggerEndpoint("/swagger/G_Test/swagger.json", "TestAPI");
+    //    c.RoutePrefix = "Test";
+    //});
     //app.UseSwaggerUI(c =>
     //{
     //    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Your API Name v1");
@@ -97,7 +98,13 @@ if (app.Environment.IsDevelopment())
 }
 //app.MapGet("/", () => "DB不存在!");
 
+//app.MapGet("/", () =>
+//{
+//    // Open the URL in the default browser
+//    Process.Start(new ProcessStartInfo("https://localhost:7129/user/index.html") { UseShellExecute = true });
 
+//    return "Hello, World!";
+//});
 
 app.UseHttpsRedirection();
 

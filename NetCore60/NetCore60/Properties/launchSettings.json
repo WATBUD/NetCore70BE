@@ -3,12 +3,13 @@
     "NetCore60": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "swagger",
+      //"launchUrl": "swagger",
+      "launchUrl": "http://localhost:7129/api/index.html",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "https://localhost:7129;http://localhost:5108"
+      "applicationUrl": "http://localhost:7129;http://localhost:5108"
     },
     "IIS Express": {
       "commandName": "IISExpress",
