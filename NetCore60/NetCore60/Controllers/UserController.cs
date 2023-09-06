@@ -33,6 +33,9 @@ namespace TodoApi.Controllers
         {
             _databaseService = databaseService;
         }
+        /// <summary> 
+        ///     創造使用者
+        /// </summary>
         [HttpPost("CreateUser")]
         public ActionResult<User> Create([Required] string _account, [Required] string _password, [Required] string _email)
         {
@@ -42,7 +45,7 @@ namespace TodoApi.Controllers
         }
 
         /// <summary> 
-        ///     获取用户信息
+        /// 檢查用户基本訊息
         /// </summary>
         /// <param name="id">Member Id</param> 
         /// <response code="200">OK</response> 
@@ -53,7 +56,6 @@ namespace TodoApi.Controllers
         [HttpGet("CheckByID/{id}")]
         public IActionResult GetUserById(int id)
         {
-            // 通过 _userService 获取用户信息
             var user = _databaseService.GetUserById(id);
 
             if (user == null)
@@ -67,7 +69,7 @@ namespace TodoApi.Controllers
 
 
         /// <summary> 
-        ///     获取用户信息
+        ///  獲取用户詳細訊息
         /// </summary>
         /// <param name="id">Member Id</param> 
         /// <response code="200">OK</response> 
@@ -78,7 +80,6 @@ namespace TodoApi.Controllers
         [HttpGet("GetUserDetail/{id}")]
         public IActionResult GetUserDetail(int id)
         {
-            // 通过 _userService 获取用户信息
             var user = _databaseService.GetUserDetail(id);
 
             if (user == null)
@@ -90,6 +91,9 @@ namespace TodoApi.Controllers
             return Ok(user);
         }
 
+        /// <summary> 
+        ///     更新使用者密碼
+        /// </summary>
         [HttpPut("UpdateUserPassWord")]
         public IActionResult UpdateUserPassWord([Required] int _user_id, [Required] string _password)
         {
@@ -106,14 +110,17 @@ namespace TodoApi.Controllers
         }
 
         /// <summary>
-        /// Update user's Detail.
+        /// 更新使用者詳細訊息
         /// </summary>
         /// <remarks>
+        /// Object JSONstringify=>: "{\\"key\\":\\"value\\"}",<br/>
+        /// Array JSONstringify=>: "[\"1\",\"2\"]", <br/>
         /// Example request:
         ///"relationship_status" ENUM=>: 'Single','Married','Divorced','Other'.<br/>
         ///"looking_for": ENUM=>'Friendship','Dating','Long-term Relationship','Other'.<br/>
-        ///"privacySettings" JSON=>: '{"key": "value"}'.<br/>
-        ///"social_links": JSON=>'{"key": "value"}'.<br/>
+        ///"userHasTag":Array JSONstringify,<br/>
+        ///"privacySettings" Array JSONstringify,<br/>
+        ///"social_links": Array JSONstringify,<br/>
         /// </remarks>
         /// <response code="200">OK</response> 
         /// <response code="400">Not found</response> 
@@ -128,18 +135,15 @@ namespace TodoApi.Controllers
             var callbackResult = _databaseService.UpdateUserDetail(_VUsersDetail);
             if (callbackResult==null)
             {
-                //var user = _databaseService.UpdateUserDetail((string)_VUsersDetail);
-                return Ok("用戶ID不存在");//
+                return Ok("用戶ID不存在");
             }
             else if (callbackResult?.GetType() == typeof(string))
             {
-                //var user = _databaseService.UpdateUserDetail((string)_VUsersDetail);
-                return Ok(callbackResult);// "用戶ID不存在"
+                return Ok(callbackResult);// 非成功錯誤訊息
             }
-            // 构建包含更新成功消息的 OkObjectResult
             else
             {
-                var successMessage = "密码更新成功";
+                var successMessage = "更新使用者詳細訊息成功";
                 var result = new OkObjectResult(new { Message = successMessage, Data = callbackResult });
                 return result;
             }

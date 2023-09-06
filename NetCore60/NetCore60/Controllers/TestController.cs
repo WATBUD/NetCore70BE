@@ -33,7 +33,6 @@ namespace TodoApi.Controllers
         /// <summary> 
         ///     測試資料庫是否為開啟狀態
         /// </summary>
-        /// <param name="id">Member Id</param> 
         /// <response code="200">OK</response> 
         /// <response code="400">Not found</response> 
         /// <returns></returns> 

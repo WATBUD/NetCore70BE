@@ -10,29 +10,14 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
-
 // Add services to the container.
 builder.Services.AddControllers();
-
-//builder.Services.AddControllers()
-//    .AddJsonOptions(options =>
-//    {
-//        options.JsonSerializerOptions.Converters.Add(new DateOnlyConverter());
-//    });
-
-
-
-
 // 注册自定义中间件
-
 //builder.Services.AddScoped<IDatabaseService, RNDatingService>();// 注册你的服务
 builder.Services.AddScoped<RNDatingService>(); // 替换为你的服务类的名称
-
-
-
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+//builder.Services.AddSwaggerGen();
 //配置第一个控制器的 Swagger
 //builder.Services.AddSwaggerGen(c =>
 //{
@@ -71,7 +56,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseMiddleware<SwaggerUIMiddleware>();
     app.UseSwagger();
-    app.UseSwaggerUI();
+    //app.UseSwaggerUI();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/G_User/swagger.json", "UsersAPI");
