@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.Metrics;
 using System.Linq;
 
-namespace TodoApi.Controllers
+namespace NetCore60.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -132,6 +132,11 @@ namespace TodoApi.Controllers
         [SwaggerResponse(500, "Internal Server Error")]
         public IActionResult UpdateUserDetail(VUsersDetail _VUsersDetail)
         {
+            if (DataInspectionAndProcessingService.IsValidEmail(_VUsersDetail.Email)==false)
+            {
+                return Ok("Email格式不正確,請輸入正確格式");
+            }
+            
             var callbackResult = _databaseService.UpdateUserDetail(_VUsersDetail);
             if (callbackResult==null)
             {
