@@ -7,6 +7,8 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.Metrics;
 using System.Linq;
+using System.Net.Sockets;
+using System.Net;
 
 namespace NetCore60.Controllers
 {
@@ -132,10 +134,6 @@ namespace NetCore60.Controllers
         [SwaggerResponse(500, "Internal Server Error")]
         public IActionResult UpdateUserDetail(VUsersDetail _VUsersDetail)
         {
-            if (DataInspectionAndProcessingService.IsValidEmail(_VUsersDetail.Email)==false)
-            {
-                return Ok("Email格式不正確,請輸入正確格式");
-            }
             
             var callbackResult = _databaseService.UpdateUserDetail(_VUsersDetail);
             if (callbackResult==null)
@@ -153,6 +151,75 @@ namespace NetCore60.Controllers
                 return result;
             }
 
+        }
+        [HttpGet("GetClientIP")]
+        public async Task<IActionResult> GetClientIPAsync()
+        {
+            string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "IP Address not available";
+            //return Content($"User IP Address: {ipAddress}");
+            //string ipAddress = "36.224.158.30";
+            try
+            {
+
+                var httpClientService = new HttpClientService();
+                string response;
+
+                if (ipAddress == "::1" || ipAddress == "127.0.0.1")
+                {
+                    var mylocalip = await httpClientService.GetLocalPublicIpAddressAsync();
+                    response = await httpClientService.GetNordVPNDataAsync(mylocalip);
+                }
+
+                else
+                {
+                    response = await httpClientService.GetNordVPNDataAsync(ipAddress);
+
+                }
+                if (response != null)
+                {
+                    //string combinedData = $"User IP Address: {ipAddress}\n响应数据：\n{response}";
+                    return Content(response);
+                }
+                else
+                {
+                    return Content("未能获取响应数据。");
+                }
+            }
+            catch (Exception ex)
+            {
+                return Content($"发生异常：{ex.Message}");
+            }
+
+        }
+
+        /// <summary> 
+        /// 取得tag群組表
+        /// </summary>
+        /// <response code="200">OK</response> 
+        /// <response code="400">Not found</response> d
+        /// <returns></returns> 
+        /// <remarks>注意事項</remarks> 
+        /// 
+        [HttpGet("GetTagGroupDetails")]
+        public IActionResult GetTagGroupDetails()
+        {
+            var resultList = _databaseService.GetTagGroupDetails();
+            return Ok(resultList);
+        }
+
+        /// <summary> 
+        /// Get Api call record table
+        /// </summary>
+        /// <response code="200">OK</response> 
+        /// <response code="400">Not found</response> d
+        /// <returns></returns> 
+        /// <remarks>注意事項</remarks> 
+        /// 
+        [HttpGet("GetRequestLogs")]
+        public IActionResult GetRequestLogs()
+        {
+            var resultList = _databaseService.GetRequestLogs();
+            return Ok(resultList);
         }
 
 

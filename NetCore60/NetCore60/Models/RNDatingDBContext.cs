@@ -15,15 +15,24 @@ public partial class RndatingDbContext : DbContext
     {
     }
 
+    public virtual DbSet<AllTag> AllTags { get; set; }
+
+    public virtual DbSet<AllTagsGroup> AllTagsGroups { get; set; }
+
     public virtual DbSet<RecordLogTable> RecordLogTables { get; set; }
+
+    public virtual DbSet<RequestLog> RequestLogs { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
 
     public virtual DbSet<UserDetail> UserDetails { get; set; }
 
+    public virtual DbSet<VTagGroupDetail> VTagGroupDetails { get; set; }
+
     public virtual DbSet<VUsersDetail> VUsersDetails { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseMySql("server=127.0.0.1;database=RNDatingDB;user=louis;password=123456", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.1.0-mysql"));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -32,16 +41,60 @@ public partial class RndatingDbContext : DbContext
             .UseCollation("utf8mb4_0900_ai_ci")
             .HasCharSet("utf8mb4");
 
+        modelBuilder.Entity<AllTag>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToTable("all_tags");
+
+            entity.HasIndex(e => e.TagId, "all_tags_UN").IsUnique();
+
+            entity.Property(e => e.TagGroupId).HasColumnName("tag_group_id");
+            entity.Property(e => e.TagId)
+                .HasDefaultValueSql("'2'")
+                .HasColumnName("tag_id");
+            entity.Property(e => e.TagName)
+                .HasMaxLength(40)
+                .HasDefaultValueSql("'empty'")
+                .HasColumnName("tag_Name");
+        });
+
+        modelBuilder.Entity<AllTagsGroup>(entity =>
+        {
+            entity.HasKey(e => e.TagGroupId).HasName("PRIMARY");
+
+            entity.ToTable("all_tags_group");
+
+            entity.Property(e => e.TagGroupId)
+                .ValueGeneratedNever()
+                .HasColumnName("tag_group_id");
+            entity.Property(e => e.TagGroupName)
+                .HasMaxLength(10)
+                .HasColumnName("tag_group_name");
+        });
+
         modelBuilder.Entity<RecordLogTable>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
-            entity.ToTable("RecordLogTable");
+            entity.ToTable("record_log_table");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.DataText)
                 .HasMaxLength(200)
                 .HasColumnName("data_text");
+        });
+
+        modelBuilder.Entity<RequestLog>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("request_logs");
+
+            entity.Property(e => e.ClientIp).HasMaxLength(45);
+            entity.Property(e => e.Method).HasMaxLength(10);
+            entity.Property(e => e.Path).HasMaxLength(255);
+            entity.Property(e => e.Timestamp).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<User>(entity =>
@@ -124,6 +177,25 @@ public partial class RndatingDbContext : DbContext
                 .HasForeignKey<UserDetail>(d => d.UdUserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_userdetail_user");
+        });
+
+        modelBuilder.Entity<VTagGroupDetail>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("V_TagGroupDetail");
+
+            entity.Property(e => e.TagGroupId).HasColumnName("tag_group_id");
+            entity.Property(e => e.TagGroupName)
+                .HasMaxLength(10)
+                .HasColumnName("tag_group_name");
+            entity.Property(e => e.TagId)
+                .HasDefaultValueSql("'2'")
+                .HasColumnName("tag_id");
+            entity.Property(e => e.TagName)
+                .HasMaxLength(40)
+                .HasDefaultValueSql("'empty'")
+                .HasColumnName("tag_Name");
         });
 
         modelBuilder.Entity<VUsersDetail>(entity =>

@@ -126,6 +126,10 @@ namespace NetCore60.Services
 
         public object? UpdateUserDetail(VUsersDetail _VUsersDetail)
         {
+            if (DataInspectionAndProcessingService.IsValidEmail(_VUsersDetail.Email) == false)
+            {
+                return "Email格式不正確,請輸入正確格式";
+            }
             // 查询数据库中的用户数据，然后将其映射为 UserDto 对象并返回
             using (var dbContext = new RndatingDbContext())
             {
@@ -185,13 +189,30 @@ namespace NetCore60.Services
 
         public VUsersDetail? GetUserDetail(int user_id)
         {
-            // 查询数据库中的用户数据，然后将其映射为 UserDto 对象并返回
             using (var context = new RndatingDbContext())
             {
 
                 var userEntity = context.VUsersDetails.FirstOrDefault(u => u.UdUserId == user_id);
                 return userEntity;
                 //return new VUsersDetail();
+            }
+        }
+        public List<RequestLog> GetRequestLogs()
+        {
+            using (var context = new RndatingDbContext())
+            {
+
+                var userEntity = context.RequestLogs.ToList();
+                return userEntity;
+            }
+        }
+        public List<VTagGroupDetail> GetTagGroupDetails()
+        {
+            using (var context = new RndatingDbContext())
+            {
+
+                var userEntity = context.VTagGroupDetails.ToList();
+                return userEntity;
             }
         }
 

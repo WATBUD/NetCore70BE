@@ -9,16 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="NewFolder1\**" />
     <Compile Remove="NewFolder\**" />
     <Compile Remove="publish-folder\NewFolder\**" />
-    <Content Remove="NewFolder1\**" />
     <Content Remove="NewFolder\**" />
     <Content Remove="publish-folder\NewFolder\**" />
-    <EmbeddedResource Remove="NewFolder1\**" />
     <EmbeddedResource Remove="NewFolder\**" />
     <EmbeddedResource Remove="publish-folder\NewFolder\**" />
-    <None Remove="NewFolder1\**" />
     <None Remove="NewFolder\**" />
     <None Remove="publish-folder\NewFolder\**" />
   </ItemGroup>

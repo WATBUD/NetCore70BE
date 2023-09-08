@@ -1,4 +1,5 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.OpenApi.Models;
 using NetCore60.Controllers;
 using NetCore60.Services;
 using NetCore60.Swagger;
@@ -15,8 +16,22 @@ builder.Services.AddControllers();
 // 注册自定义中间件
 //builder.Services.AddScoped<IDatabaseService, RNDatingService>();// 注册你的服务
 builder.Services.AddScoped<RNDatingService>(); // 替换为你的服务类的名称
+
+// 添加OnlineUsersService作为服务
+builder.Services.AddSingleton<OnlineUsersService>();
+
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+
+
+builder.Services.AddControllers()
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
+            });
+
+// ...
 //builder.Services.AddSwaggerGen();
 //配置第一个控制器的 Swagger
 //builder.Services.AddSwaggerGen(c =>
@@ -48,9 +63,9 @@ builder.Services.AddSwaggerGen(c =>
     //var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     //c.IncludeXmlComments(xmlPath);
 });
-
 var app = builder.Build();
 
+app.UseMiddleware<RequestLoggingMiddleware>();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -59,27 +74,13 @@ if (app.Environment.IsDevelopment())
     //app.UseSwaggerUI();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/G_User/swagger.json", "UsersAPI");
+        c.SwaggerEndpoint("/swagger/G_User/swagger.json", "UsersAPI");//http
         c.SwaggerEndpoint("/swagger/G_Test/swagger.json", "TestAPI");
         c.RoutePrefix = "api";
 
         //c.RoutePrefix = "Test";
 
     });
-    //app.UseSwaggerUI(c =>
-    //{
-    //    c.SwaggerEndpoint("/swagger/G_Test/swagger.json", "TestAPI");
-    //    c.RoutePrefix = "Test";
-    //});
-    //app.UseSwaggerUI(c =>
-    //{
-    //    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Your API Name v1");
-    //});
-    //app.UseSwaggerUI(c =>
-    //{
-    //    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Your API v1");
-    //    c.RoutePrefix = "222";
-    //});
 }
 //app.MapGet("/", () => "DB不存在!");
 
@@ -96,6 +97,12 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+//app.MapGet("/api/online-users", (OnlineUsersService onlineUsersService) =>
+//{
+//    int count = onlineUsersService.GetOnlineUserCount();
+//    return new { Count = count };
+//});
 
 app.Run();
 

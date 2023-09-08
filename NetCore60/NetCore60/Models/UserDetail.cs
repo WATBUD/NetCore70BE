@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-//using Newtonsoft.Json;
 
 namespace NetCore60.Models;
-/// <summary>
-/// Represents a user with their privacy settings.
-/// </summary>
+
 public partial class UserDetail
 {
     public int UdUserId { get; set; }
@@ -31,7 +28,6 @@ public partial class UserDetail
     public string? PrivacySettings { get; set; }
 
     public string? SocialLinks { get; set; }
-
 
     public bool? IsBanned { get; set; }
 
