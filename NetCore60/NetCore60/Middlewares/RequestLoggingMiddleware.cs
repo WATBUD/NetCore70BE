@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using NetCore60.Models;
 using System;
 using System.Linq;
@@ -8,16 +9,19 @@ using System.Threading.Tasks;
 public class RequestLoggingMiddleware
 {
     private readonly RequestDelegate _next;
-
-    public RequestLoggingMiddleware(RequestDelegate next)
+    private readonly string? _connectionString;
+    public RequestLoggingMiddleware(RequestDelegate next, IConfiguration configuration)
     {
         _next = next;
+        _connectionString = configuration.GetConnectionString("RNDatingDBConnection");
+
     }
 
     public async Task InvokeAsync(HttpContext _HttpContext)
     {
-        using (var context = new RndatingDbContext())
-        {
+        using (var context = new RndatingDbContext(_connectionString)) 
+        { 
+
             try
             {
                 string[] targetPaths = { "/api/index.html", "/swagger/G_User/swagger.json" };
@@ -43,7 +47,7 @@ public class RequestLoggingMiddleware
             }
             catch (Exception ex)
             {
-                var test = new RndatingDbContext();
+                var test = new RndatingDbContext(_connectionString);
                 var sqlExceptionMessage = "" + ex.InnerException?.Message;
                 // 将异常消息保存到 RecordLogTable 中
                 test.RecordLogTables.Add(new RecordLogTable { DataText = sqlExceptionMessage });

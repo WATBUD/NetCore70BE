@@ -9,6 +9,8 @@ using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Net.Sockets;
 using System.Net;
+using System.Text.Json;
+using Newtonsoft.Json.Linq;
 
 namespace NetCore60.Controllers
 {
@@ -152,6 +154,67 @@ namespace NetCore60.Controllers
             }
 
         }
+
+        /// <summary>
+        /// 更新使用者單一詳細訊息
+        /// </summary>
+        /// <remarks>
+        /// Object JSONstringify=>: "{\\"key\\":\\"value\\"}",<br/>
+        /// Array JSONstringify=>: "[\"1\",\"2\"]", <br/>
+        /// Example request:
+        ///"relationship_status" ENUM=>: 'Single','Married','Divorced','Other'.<br/>
+        ///"looking_for": ENUM=>'Friendship','Dating','Long-term Relationship','Other'.<br/>
+        ///"userHasTag":Array JSONstringify,<br/>
+        ///"privacySettings" Array JSONstringify,<br/>
+        ///"social_links": Array JSONstringify,<br/>
+        ///"{\\"password\\":\\"557788\\"}"
+        /// </remarks>
+        /// <response code="200">OK</response> 
+        /// <response code="400">Not found</response> 
+        /// <param name="UserId">The ID of the user to update.</param>
+        /// <param name="_VUsersDetailJsonString"></param>
+        /// <returns>Returns a response indicating the result of the Detail update.</returns>
+        [HttpPost("UpdateUserSingleDetails")]
+        [SwaggerResponse(500, "Internal Server Error")]
+        public IActionResult UpdateUserSingleDetails([Required] int UserId, [FromBody] string _VUsersDetailJsonString)
+        {
+            try
+            {
+                // 使用 System.Text.Json 或 Newtonsoft.Json 将 json 字符串反序列化为对象
+                // 这里假设您使用 System.Text.Json
+                //var userDetail = System.Text.Json.JsonSerializer.Deserialize<Object>(_VUsersDetail);
+                //JsonDocument jsonDocument = JsonDocument.Parse(_VUsersDetail);
+                if (_VUsersDetailJsonString == null)
+                {
+                    return Ok("請指定要更新的欄位");
+                }
+
+
+                var callbackResult = _databaseService.UpdateUserSingleDetails(UserId, _VUsersDetailJsonString);
+                if (callbackResult == null)
+                {
+                    return Ok("用戶ID不存在");
+                }
+                else if (callbackResult?.GetType() == typeof(string))
+                {
+                    return Ok(callbackResult);// 非成功錯誤訊息
+                }
+                else
+                {
+                    var successMessage = "更新使用者詳細訊息成功";
+                    var result = new OkObjectResult(new { Message = successMessage, Data = callbackResult });
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error: {ex.Message}");
+            }
+
+        }
+
+
+
         [HttpGet("GetClientIP")]
         public async Task<IActionResult> GetClientIPAsync()
         {

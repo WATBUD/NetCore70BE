@@ -1,8 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using MySqlConnector;
 using NetCore60.Models;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Linq;
+using System.Reflection;
 using System.Security.Principal;
 using System.Xml.Linq;
 
@@ -13,33 +16,15 @@ namespace NetCore60.Services
         //private readonly IConfiguration _configuration;
         private readonly string? _connectionString;
 
-
         public RNDatingService(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("MyDatabaseConnection");
+            _connectionString = configuration.GetConnectionString("RNDatingDBConnection");
         }
 
-        public string Connect()
-        {
-            using MySqlConnection connection = new MySqlConnection(_connectionString);
 
-            try
-            {
-                connection.Open();
-                return "Connection opened successfully.";
-            }
-            catch (Exception ex)
-            {
-                return $"Error opening connection: {ex.Message}";
-            }
-            finally
-            {
-                connection.Close();
-            }
-        }
         public void testDbContext()
         {
-            using (var context = new RndatingDbContext())
+            using (var context = new RndatingDbContext(_connectionString))
             {
                 // Create
                 //var newItem = new User {  Username = "New Task" };
@@ -64,13 +49,6 @@ namespace NetCore60.Services
                     }
 
                 }
-                //// Update
-                //var itemToUpdate = context.Users.FirstOrDefault(item => item.Title == "New Task");
-                //if (itemToUpdate != null)
-                //{
-                //    itemToUpdate.Title = "Updated Task";
-                //    context.SaveChanges();
-                //}
                 //// Delete
                 //var itemToDelete = context.Users.FirstOrDefault(item => item.Title == "Updated Task");
                 //if (itemToDelete != null)
@@ -82,10 +60,11 @@ namespace NetCore60.Services
 
 
         }
+
         public User? GetUserById(int id)
         {
             // 查询数据库中的用户数据，然后将其映射为 UserDto 对象并返回
-            using (var context = new RndatingDbContext())
+            using (var context = new RndatingDbContext(_connectionString))
             {
 
                 var userEntity = context.Users.FirstOrDefault(u => u.UserId == id);
@@ -93,10 +72,11 @@ namespace NetCore60.Services
 
             }
         }
-        public VUsersDetail? UpdateUserPassword(int user_id,string _password)
+
+        public VUsersDetail? UpdateUserPassword(int user_id, string _password)
         {
             // 查询数据库中的用户数据，然后将其映射为 UserDto 对象并返回
-            using (var dbContext = new RndatingDbContext())
+            using (var dbContext = new RndatingDbContext(_connectionString))
             {
                 using (var transaction = dbContext.Database.BeginTransaction())
                 {
@@ -120,7 +100,7 @@ namespace NetCore60.Services
                         return null;
                     }
                 }
-     
+
             }
         }
 
@@ -131,65 +111,147 @@ namespace NetCore60.Services
                 return "Email格式不正確,請輸入正確格式";
             }
             // 查询数据库中的用户数据，然后将其映射为 UserDto 对象并返回
-            using (var dbContext = new RndatingDbContext())
+            using (var dbContext = new RndatingDbContext(_connectionString))
             {
-                using (var transaction = dbContext.Database.BeginTransaction())
+                var transaction = dbContext.Database.BeginTransaction();
+                try
                 {
-                    try
-                    {
-                        var userEntity = dbContext.Users.FirstOrDefault(u => u.UserId == _VUsersDetail.UserId);
-                        var userDetailEntity = dbContext.UserDetails.FirstOrDefault(u => u.UdUserId == _VUsersDetail.UserId);
+                    var userEntity = dbContext.Users.FirstOrDefault(u => u.UserId == _VUsersDetail.UserId);
+                    var userDetailEntity = dbContext.UserDetails.FirstOrDefault(u => u.UdUserId == _VUsersDetail.UserId);
 
+                    if (userEntity != null)
+                    {
+                        foreach (var propertyInfo in typeof(User).GetProperties())
+                        {
+                            var newValue = typeof(VUsersDetail).GetProperty(propertyInfo.Name)?.GetValue(_VUsersDetail);
+                            if (newValue != null && propertyInfo.Name != "UserId")
+                            {
+                                propertyInfo.SetValue(userEntity, newValue);
+                            }
+                        }
+                    }
+                    if (userDetailEntity != null)
+                    {
+                        foreach (var propertyInfo in typeof(UserDetail).GetProperties())
+                        {
+                            var newValue = typeof(VUsersDetail).GetProperty(propertyInfo.Name)?.GetValue(_VUsersDetail);
+                            if (newValue != null && propertyInfo.Name != "UdUserId")
+                            {
+                                propertyInfo.SetValue(userDetailEntity, newValue);
+                            }
+                        }
+                    }
+                    dbContext.SaveChanges();
+                    // 提交事务
+                    transaction.Commit();
+                    var returnEntity = dbContext.VUsersDetails.FirstOrDefault(u => u.UserId == _VUsersDetail.UserId);
+                    return returnEntity;
+                }
+                catch (Exception ex)
+                {
+                    // 如果出现异常，回滚事务
+                    transaction.Rollback();
+                    if (ex.InnerException != null)
+                    {
+                        return ex.InnerException.Message;
+                    }
+                    else
+                    {
+                        return ex.Message;
+                    }
+
+                }
+            }
+        }
+
+        public object? UpdateUserSingleDetails(int userIdProperty, string _VUsersDetail)
+        {
+            // 使用反射获取对象的所有属性
+            //PropertyInfo[] properties = _VUsersDetail.GetType().GetProperties();
+            using (var dbContext = new RndatingDbContext(_connectionString))
+            {
+                var transaction = dbContext.Database.BeginTransaction();
+                try
+                {
+                    JObject json = JObject.Parse(_VUsersDetail);
+                    //List<string> keyNames = new List<string>();
+                    foreach (var property in json.Properties())
+                    {
+                        //keyNames.Add(property.Name);
+                        string jsonkeyName = DataInspectionAndProcessingService.ToPascalCase(property.Name);
+                        var jsonValue = json[property.Name]?.ToString();
+                        if (jsonValue == null)
+                        {
+                            return "jsonValue == null";
+                        }
+                        if (property.Name == "email")
+                        {
+                            if (DataInspectionAndProcessingService.IsValidEmail(property.Name))
+                            {
+                                return "Email格式不正確,請輸入正確格式";
+                            }
+                        }
+                        var userEntity = dbContext.Users.FirstOrDefault(u => u.UserId == userIdProperty);
+                        if (userEntity == null)
+                        {
+                            return "UserId不存在";
+                        }
                         if (userEntity != null)
                         {
-                            foreach (var propertyInfo in typeof(User).GetProperties())
+
+                            var userProperty = userEntity.GetType().GetProperty(jsonkeyName);
+                            
+                            if (userProperty == null)
                             {
-                                var newValue = typeof(VUsersDetail).GetProperty(propertyInfo.Name)?.GetValue(_VUsersDetail);
-                                if (newValue != null&& propertyInfo.Name!= "UserId")
-                                {
-                                    propertyInfo.SetValue(userEntity, newValue);
-                                }
+                                return $"userEntity{jsonkeyName}不存在";
+                            }
+                            else
+                            {
+                                userProperty.SetValue(userEntity, jsonValue);
+                                continue;
                             }
                         }
+                        var userDetailEntity = dbContext.UserDetails.FirstOrDefault(u => u.UdUserId == userIdProperty);
                         if (userDetailEntity != null)
                         {
-                            foreach (var propertyInfo in typeof(UserDetail).GetProperties())
+                            var userProperty2 = userDetailEntity.GetType().GetProperty(jsonkeyName);
+                            if (userProperty2 == null)
                             {
-                                var newValue = typeof(VUsersDetail).GetProperty(propertyInfo.Name)?.GetValue(_VUsersDetail);
-                                if (newValue != null && propertyInfo.Name != "UdUserId")
-                                {
-                                    propertyInfo.SetValue(userDetailEntity, newValue);
-                                }
+                                return $"userDetailEntity{jsonkeyName}不存在";
+                            }
+                            else
+                            {
+                                userProperty2.SetValue(userEntity, jsonValue);
                             }
                         }
-                        dbContext.SaveChanges();
-                        // 提交事务
-                        transaction.Commit();
-                        var returnEntity = dbContext.VUsersDetails.FirstOrDefault(u => u.UserId == _VUsersDetail.UserId);
-                        return returnEntity;
                     }
-                    catch (Exception ex)
-                    {
-                        // 如果出现异常，回滚事务
-                        transaction.Rollback();
-                        if (ex.InnerException != null)
-                        {
-                            return ex.InnerException.Message;
-                        }
-                        else
-                        {
-                            return ex.Message;
-                        }
-
-                    }
+                    dbContext.SaveChanges();
+                    // 提交事务
+                    transaction.Commit();
+                    var returnEntity = dbContext.VUsersDetails.FirstOrDefault(u => u.UserId == userIdProperty);
+                    return returnEntity;
                 }
+                catch (Exception ex)
+                {
+                    // 如果出现异常，回滚事务
+                    transaction.Rollback();
+                    if (ex.InnerException != null)
+                    {
+                        return ex.InnerException.Message;
+                    }
+                    else
+                    {
+                        return ex.Message;
+                    }
 
+                }
             }
+            //return "No data entered";
         }
 
         public VUsersDetail? GetUserDetail(int user_id)
         {
-            using (var context = new RndatingDbContext())
+            using (var context = new RndatingDbContext(_connectionString))
             {
 
                 var userEntity = context.VUsersDetails.FirstOrDefault(u => u.UdUserId == user_id);
@@ -197,18 +259,20 @@ namespace NetCore60.Services
                 //return new VUsersDetail();
             }
         }
+
         public List<RequestLog> GetRequestLogs()
         {
-            using (var context = new RndatingDbContext())
+            using (var context = new RndatingDbContext(_connectionString))
             {
 
                 var userEntity = context.RequestLogs.ToList();
                 return userEntity;
             }
         }
+
         public List<VTagGroupDetail> GetTagGroupDetails()
         {
-            using (var context = new RndatingDbContext())
+            using (var context = new RndatingDbContext(_connectionString))
             {
 
                 var userEntity = context.VTagGroupDetails.ToList();
@@ -219,7 +283,7 @@ namespace NetCore60.Services
         public string InsertUserAccount(string _account, string password, string _email)
         {
             int generatedId; // 获取自动生成的 ID
-            using (var context = new RndatingDbContext())
+            using (var context = new RndatingDbContext(_connectionString))
             {
                 if (string.IsNullOrEmpty(_account))// 字符串为空或 null
                 {
@@ -229,14 +293,14 @@ namespace NetCore60.Services
                 //Create
                 try
                 {
-                    var newItem = new User { Account = _account, Password = password,Username="新使用者", Email= _email };
+                    var newItem = new User { Account = _account, Password = password, Username = "新使用者", Email = _email };
                     context.Users.Add(newItem);
                     context.SaveChanges();
                     generatedId = newItem.UserId; // 获取自动生成的 ID
                 }
                 catch (Exception ex)
                 {
-                    var test = new RndatingDbContext();
+                    var test = new RndatingDbContext(_connectionString);
                     //test.RecordLogTables.Add(new RecordLogTable { DataText = ex.Message+ ex.InnerException });
 
                     var sqlExceptionMessage = "" + ex.InnerException?.Message;
@@ -320,7 +384,7 @@ namespace NetCore60.Services
 
         public string testConnectionDatabase()
         {
-            using (var context = new RndatingDbContext())
+            using (var context = new RndatingDbContext(_connectionString))
             {
                 try
                 {
@@ -346,7 +410,7 @@ namespace NetCore60.Services
         {
             try
             {
-                using var dbContext = new RndatingDbContext();
+                using var dbContext = new RndatingDbContext(_connectionString);
                 dbContext.Database.OpenConnection();
                 dbContext.Database.CloseConnection();
                 return true;

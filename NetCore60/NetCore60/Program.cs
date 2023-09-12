@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.OpenApi.Models;
 using NetCore60.Controllers;
+using NetCore60.Models;
 using NetCore60.Services;
 using NetCore60.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -11,8 +14,30 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
-// Add services to the container.
-builder.Services.AddControllers();
+
+
+// 添加配置文件（appsettings.json）作为配置源
+//builder.Configuration.AddJsonFile("appsettings.json");
+
+//// 创建 DbContextOptions
+//var connectionString = builder.Configuration.GetConnectionString("RNDatingDBConnection");
+//var dbContextOptions = new DbContextOptionsBuilder<RndatingDbContext>()
+//    .UseMySql(connectionString, ServerVersion.Parse("8.1.0-mysql"))
+//    .Options;
+
+//// 注册 DbContextOptions
+//builder.Services.AddSingleton(dbContextOptions);
+
+//// 注册 DbContext，将配置传递给构造函数
+//builder.Services.AddDbContext<RndatingDbContext>(options =>
+//{
+//    options.UseMySql(connectionString, ServerVersion.Parse("8.1.0-mysql"));
+//});
+
+
+
+
+
 // 注册自定义中间件
 //builder.Services.AddScoped<IDatabaseService, RNDatingService>();// 注册你的服务
 builder.Services.AddScoped<RNDatingService>(); // 替换为你的服务类的名称
@@ -23,7 +48,8 @@ builder.Services.AddSingleton<OnlineUsersService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-
+// Add services to the container.
+builder.Services.AddControllers();
 
 builder.Services.AddControllers()
             .AddJsonOptions(options =>

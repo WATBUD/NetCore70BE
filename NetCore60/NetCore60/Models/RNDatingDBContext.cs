@@ -1,18 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace NetCore60.Models;
 
 public partial class RndatingDbContext : DbContext
 {
-    public RndatingDbContext()
+    private readonly string _connectionString="";
+
+    public RndatingDbContext(string? connectionString)
     {
+        if(connectionString!=null) _connectionString = connectionString;
     }
 
-    public RndatingDbContext(DbContextOptions<RndatingDbContext> options)
+    public RndatingDbContext(DbContextOptions<RndatingDbContext> options, string connectionString)
         : base(options)
     {
+        if (connectionString != null) _connectionString = connectionString;
     }
 
     public virtual DbSet<AllTag> AllTags { get; set; }
@@ -32,8 +37,10 @@ public partial class RndatingDbContext : DbContext
     public virtual DbSet<VUsersDetail> VUsersDetails { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseMySql("server=127.0.0.1;database=RNDatingDB;user=louis;password=123456", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.1.0-mysql"));
+    {
+        optionsBuilder.UseMySql(_connectionString, Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.1.0-mysql"));
+    }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
