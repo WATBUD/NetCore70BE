@@ -105,6 +105,10 @@ public partial class RndatingDbContext : DbContext
             entity.ToTable("record_log_table");
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp")
+                .HasColumnName("created_at");
             entity.Property(e => e.DataText)
                 .HasMaxLength(200)
                 .HasColumnName("data_text");

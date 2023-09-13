@@ -36,7 +36,7 @@ public class RequestLoggingMiddleware
                     Path = _HttpContext.Request.Path,
                     Method = _HttpContext.Request.Method,
                     ClientIp = _HttpContext.Connection.RemoteIpAddress?.ToString() ?? "",
-                    Timestamp = DateTime.UtcNow
+                    CreatedAt = DateTime.UtcNow
                 };
 
                 // 将 requestLog 添加到 context.RequestLogs 中
