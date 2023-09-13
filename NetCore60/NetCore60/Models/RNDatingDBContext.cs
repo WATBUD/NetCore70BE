@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace NetCore60.Models;
 
@@ -23,6 +22,8 @@ public partial class RndatingDbContext : DbContext
     public virtual DbSet<AllTag> AllTags { get; set; }
 
     public virtual DbSet<AllTagsGroup> AllTagsGroups { get; set; }
+
+    public virtual DbSet<ChatMessage> ChatMessages { get; set; }
 
     public virtual DbSet<RecordLogTable> RecordLogTables { get; set; }
 
@@ -80,6 +81,23 @@ public partial class RndatingDbContext : DbContext
                 .HasColumnName("tag_group_name");
         });
 
+        modelBuilder.Entity<ChatMessage>(entity =>
+        {
+            entity.HasKey(e => e.MessageId).HasName("PRIMARY");
+
+            entity.ToTable("chat_messages");
+
+            entity.Property(e => e.MessageId).HasColumnName("message_id");
+            entity.Property(e => e.Content)
+                .HasColumnType("text")
+                .HasColumnName("content");
+            entity.Property(e => e.ReceiverId).HasColumnName("receiver_id");
+            entity.Property(e => e.SenderId).HasColumnName("sender_id");
+            entity.Property(e => e.TimeStamp)
+                .HasColumnType("timestamp")
+                .HasColumnName("time_stamp");
+        });
+
         modelBuilder.Entity<RecordLogTable>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
@@ -98,10 +116,18 @@ public partial class RndatingDbContext : DbContext
 
             entity.ToTable("request_logs");
 
-            entity.Property(e => e.ClientIp).HasMaxLength(45);
-            entity.Property(e => e.Method).HasMaxLength(10);
-            entity.Property(e => e.Path).HasMaxLength(255);
-            entity.Property(e => e.Timestamp).HasColumnType("datetime");
+            entity.Property(e => e.ClientIp)
+                .HasMaxLength(45)
+                .HasColumnName("client_ip");
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("created_at");
+            entity.Property(e => e.Method)
+                .HasMaxLength(10)
+                .HasColumnName("method");
+            entity.Property(e => e.Path)
+                .HasMaxLength(255)
+                .HasColumnName("path");
         });
 
         modelBuilder.Entity<User>(entity =>

@@ -214,6 +214,30 @@ namespace NetCore60.Controllers
         }
 
 
+        [HttpGet("GetAssignIPInfo")]
+        public async Task<IActionResult> GetAssignIPInfoAsync([Required]string ipAddress)
+        {
+            try
+            {
+                var httpClientService = new HttpClientService();
+                string response;
+                response = await httpClientService.GetNordVPNDataAsync(ipAddress);      
+                if (response != null)
+                {
+                    //string combinedData = $"User IP Address: {ipAddress}\n响应数据：\n{response}";
+                    return Content(response);
+                }
+                else
+                {
+                    return Content("未能获取响应数据。");
+                }
+            }
+            catch (Exception ex)
+            {
+                return Content($"发生异常：{ex.Message}");
+            }
+
+        }
 
         [HttpGet("GetClientIP")]
         public async Task<IActionResult> GetClientIPAsync()

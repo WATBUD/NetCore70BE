@@ -13,5 +13,5 @@ public partial class RequestLog
 
     public string ClientIp { get; set; } = null!;
 
-    public DateTime Timestamp { get; set; }
+    public DateTime CreatedAt { get; set; }
 }
