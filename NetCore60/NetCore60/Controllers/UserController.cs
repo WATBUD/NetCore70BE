@@ -19,23 +19,11 @@ namespace NetCore60.Controllers
     [ApiExplorerSettings(GroupName = "G_User")]
     public class UserController : ControllerBase
     {
-        //private readonly IDatabaseService _databaseService;
-
-        //public TestController(IDatabaseService databaseService)//Constructor
-        //{
-        //    _databaseService = databaseService;
-        //}
-        //[HttpGet("testconnection")]
-        //public ActionResult<string> TestConnection()
-        //{
-        //    string connectionStatus = _databaseService.Connect();
-        //    return connectionStatus;
-        //}
         private readonly RNDatingService _databaseService;
-
         public UserController(RNDatingService databaseService) // Constructor
         {
             _databaseService = databaseService;
+
         }
         /// <summary> 
         ///     創造使用者
@@ -128,23 +116,20 @@ namespace NetCore60.Controllers
         /// </remarks>
         /// <response code="200">OK</response> 
         /// <response code="400">Not found</response> 
-        /// <param name="_VUsersDetail.UserId">The ID of the user to update.</param>
+        /// <param name="_VUsersDetailDTO.UserId">The ID of the user to update.</param>
         /// <returns>Returns a response indicating the result of the Detail update.</returns>
         [HttpPost("UpdateUserDetail")]
         //[SwaggerResponse(200, "Success")]
         //[SwaggerResponse(400, "Bad Request")]
         [SwaggerResponse(500, "Internal Server Error")]
-        public IActionResult UpdateUserDetail(VUsersDetail _VUsersDetail)
+        public IActionResult UpdateUserDetail(VUsersDetailDTO _VUsersDetailDTO)
         {
             
-            var callbackResult = _databaseService.UpdateUserDetail(_VUsersDetail);
-            if (callbackResult==null)
-            {
-                return Ok("用戶ID不存在");
-            }
-            else if (callbackResult?.GetType() == typeof(string))
+            var callbackResult = _databaseService.UpdateUserDetail(_VUsersDetailDTO);
+            if (callbackResult?.GetType() == typeof(string))
             {
                 return Ok(callbackResult);// 非成功錯誤訊息
+
             }
             else
             {
@@ -154,44 +139,18 @@ namespace NetCore60.Controllers
             }
 
         }
-
-        /// <summary>
-        /// 更新使用者單一詳細訊息
-        /// </summary>
-        /// <remarks>
-        /// Object JSONstringify=>: "{\\"key\\":\\"value\\"}",<br/>
-        /// Array JSONstringify=>: "[\"1\",\"2\"]", <br/>
-        /// Example request:
-        ///"relationship_status" ENUM=>: 'Single','Married','Divorced','Other'.<br/>
-        ///"looking_for": ENUM=>'Friendship','Dating','Long-term Relationship','Other'.<br/>
-        ///"userHasTag":Array JSONstringify,<br/>
-        ///"privacySettings" Array JSONstringify,<br/>
-        ///"social_links": Array JSONstringify,<br/>
-        ///"{\\"password\\":\\"557788\\"}"
-        /// </remarks>
-        /// <response code="200">OK</response> 
-        /// <response code="400">Not found</response> 
-        /// <param name="UserId">The ID of the user to update.</param>
-        /// <param name="_VUsersDetailJsonString"></param>
-        /// <returns>Returns a response indicating the result of the Detail update.</returns>
-        [HttpPost("UpdateUserSingleDetails")]
-        [SwaggerResponse(500, "Internal Server Error")]
-        public IActionResult UpdateUserSingleDetails([Required] int UserId, [FromBody] string _VUsersDetailJsonString)
+        [HttpPost("UpdateUserDetailByFormData")]
+        //public IActionResult UpdateUserDetailByFormData(IFormCollection formData)//keytype:file text name:custom value:custom,
+        public IActionResult UploadMixedFormData([FromForm] VUsersDetailDTO _VUsersDetailDTO)
         {
             try
             {
                 // 使用 System.Text.Json 或 Newtonsoft.Json 将 json 字符串反序列化为对象
                 // 这里假设您使用 System.Text.Json
-                //var userDetail = System.Text.Json.JsonSerializer.Deserialize<Object>(_VUsersDetail);
-                //JsonDocument jsonDocument = JsonDocument.Parse(_VUsersDetail);
-                if (_VUsersDetailJsonString == null)
-                {
-                    return Ok("請指定要更新的欄位");
-                }
-
-
-                var callbackResult = _databaseService.UpdateUserSingleDetails(UserId, _VUsersDetailJsonString);
-                if (callbackResult == null)
+                //var userDetail = System.Text.Json.JsonSerializer.Deserialize<Object>(_VUsersDetailDTO);
+                //JsonDocument jsonDocument = JsonDocument.Parse(_VUsersDetailDTO);
+                var callbackResult = _databaseService.UpdateUserDetail(_VUsersDetailDTO);
+                if (_VUsersDetailDTO.UserId == null)
                 {
                     return Ok("用戶ID不存在");
                 }
@@ -202,6 +161,7 @@ namespace NetCore60.Controllers
                 else
                 {
                     var successMessage = "更新使用者詳細訊息成功";
+                    //return Ok("User details updated successfully");
                     var result = new OkObjectResult(new { Message = successMessage, Data = callbackResult });
                     return result;
                 }
@@ -209,9 +169,76 @@ namespace NetCore60.Controllers
             catch (Exception ex)
             {
                 return BadRequest($"Error: {ex.Message}");
+                //return StatusCode(StatusCodes.Status500InternalServerError, "Internal Server Error");
             }
-
         }
+
+        ///// <summary>
+        ///// 更新使用者單一詳細訊息
+        ///// </summary>
+        ///// <remarks>
+        ///// Object JSONstringify=>: "{\\"key\\":\\"value\\"}",<br/>
+        ///// Array JSONstringify=>: "[\"1\",\"2\"]", <br/>
+        ///// Example request:
+        /////"relationship_status" ENUM=>: 'Single','Married','Divorced','Other'.<br/>
+        /////"looking_for": ENUM=>'Friendship','Dating','Long-term Relationship','Other'.<br/>
+        /////"userHasTag":Array JSONstringify,<br/>
+        /////"privacySettings" Array JSONstringify,<br/>
+        /////"social_links": Array JSONstringify,<br/>
+        /////"{\\"password\\":\\"557788\\"}"
+        ///// </remarks>
+        ///// <response code="200">OK</response> 
+        ///// <response code="400">Not found</response> 
+        ///// <param name="UserId">The ID of the user to update.</param>
+        ///// <param name="_VUsersDetailJsonString"></param>
+        ///// <returns>Returns a response indicating the result of the Detail update.</returns>
+        //[HttpPost("UpdateUserSingleDetails")]
+        //[SwaggerResponse(500, "Internal Server Error")]
+        //public IActionResult UpdateUserSingleDetails([Required] int UserId, [FromBody] string _VUsersDetailJsonString)
+        //{
+        //    try
+        //    {
+        //        // 使用 System.Text.Json 或 Newtonsoft.Json 将 json 字符串反序列化为对象
+        //        // 这里假设您使用 System.Text.Json
+        //        //var userDetail = System.Text.Json.JsonSerializer.Deserialize<Object>(_VUsersDetailDTO);
+        //        //JsonDocument jsonDocument = JsonDocument.Parse(_VUsersDetailDTO);
+        //        if (_VUsersDetailJsonString == null)
+        //        {
+        //            return Ok("請指定要更新的欄位");
+        //        }
+
+
+        //        var callbackResult = _databaseService.UpdateUserSingleDetails(UserId, _VUsersDetailJsonString);
+        //        if (callbackResult == null)
+        //        {
+        //            return Ok("用戶ID不存在");
+        //        }
+        //        else if (callbackResult?.GetType() == typeof(string))
+        //        {
+        //            return Ok(callbackResult);// 非成功錯誤訊息
+        //        }
+        //        else
+        //        {
+        //            var successMessage = "更新使用者詳細訊息成功";
+        //            var result = new OkObjectResult(new { Message = successMessage, Data = callbackResult });
+        //            return result;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest($"Error: {ex.Message}");
+        //    }
+
+        //}
+
+        [HttpPost("UploadImageFileToServer")]
+        //[Consumes("multipart/form-data")]
+        public IActionResult UploadImageFileToServer(IFormFile file)
+        {
+            string resultMessage= SystemService.UploadImageFileToServer(file);
+            return Ok(resultMessage);
+        }
+
 
 
         [HttpGet("GetAssignIPInfo")]

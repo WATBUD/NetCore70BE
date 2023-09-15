@@ -4,6 +4,7 @@ using MySqlConnector;
 using NetCore60.Models;
 using Newtonsoft.Json.Linq;
 using System;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Reflection;
 using System.Security.Principal;
@@ -104,29 +105,29 @@ namespace NetCore60.Services
             }
         }
 
-        public object? UpdateUserDetail(VUsersDetail _VUsersDetail)
+        public object? UpdateUserDetail(VUsersDetailDTO _VUsersDetailDTO)
         {
-            if (DataInspectionAndProcessingService.IsValidEmail(_VUsersDetail.Email) == false)
-            {
-                return "Email格式不正確,請輸入正確格式";
-            }
             // 查询数据库中的用户数据，然后将其映射为 UserDto 对象并返回
             using (var dbContext = new RndatingDbContext(_connectionString))
             {
                 var transaction = dbContext.Database.BeginTransaction();
                 try
                 {
-                    var userEntity = dbContext.Users.FirstOrDefault(u => u.UserId == _VUsersDetail.UserId);
-                    var userDetailEntity = dbContext.UserDetails.FirstOrDefault(u => u.UdUserId == _VUsersDetail.UserId);
+                    var userEntity = dbContext.Users.FirstOrDefault(u => u.UserId == _VUsersDetailDTO.UserId);
+                    var userDetailEntity = dbContext.UserDetails.FirstOrDefault(u => u.UdUserId == _VUsersDetailDTO.UserId);
 
                     if (userEntity != null)
                     {
                         foreach (var propertyInfo in typeof(User).GetProperties())
                         {
-                            var newValue = typeof(VUsersDetail).GetProperty(propertyInfo.Name)?.GetValue(_VUsersDetail);
-                            if (newValue != null && propertyInfo.Name != "UserId")
+                            var newValue = typeof(VUsersDetailDTO).GetProperty(propertyInfo.Name)?.GetValue(_VUsersDetailDTO);
+                            if (newValue != null)
                             {
-                                propertyInfo.SetValue(userEntity, newValue);
+                                if (propertyInfo.Name != "UserId")
+                                {
+                                    propertyInfo.SetValue(userEntity, newValue);
+                                }
+
                             }
                         }
                     }
@@ -134,17 +135,25 @@ namespace NetCore60.Services
                     {
                         foreach (var propertyInfo in typeof(UserDetail).GetProperties())
                         {
-                            var newValue = typeof(VUsersDetail).GetProperty(propertyInfo.Name)?.GetValue(_VUsersDetail);
-                            if (newValue != null && propertyInfo.Name != "UdUserId")
+                            var newValue = typeof(VUsersDetailDTO).GetProperty(propertyInfo.Name)?.GetValue(_VUsersDetailDTO);
+                            if (newValue != null)
                             {
-                                propertyInfo.SetValue(userDetailEntity, newValue);
+                                if (propertyInfo.Name == "ProfilePicture")
+                                {
+                                    string newFileName = SystemService.UploadImageFileToServer((IFormFile)newValue, true);
+                                    userDetailEntity.ProfilePicture = newFileName;
+                                }
+                                else if(propertyInfo.Name != "UdUserId")
+                                {
+                                    propertyInfo.SetValue(userDetailEntity, newValue);
+                                }
                             }
                         }
                     }
                     dbContext.SaveChanges();
                     // 提交事务
                     transaction.Commit();
-                    var returnEntity = dbContext.VUsersDetails.FirstOrDefault(u => u.UserId == _VUsersDetail.UserId);
+                    var returnEntity = dbContext.VUsersDetails.FirstOrDefault(u => u.UserId == _VUsersDetailDTO.UserId);
                     return returnEntity;
                 }
                 catch (Exception ex)
@@ -167,7 +176,7 @@ namespace NetCore60.Services
         public object? UpdateUserSingleDetails(int userIdProperty, string _VUsersDetail)
         {
             // 使用反射获取对象的所有属性
-            //PropertyInfo[] properties = _VUsersDetail.GetType().GetProperties();
+            //PropertyInfo[] properties = _VUsersDetailDTO.GetType().GetProperties();
             using (var dbContext = new RndatingDbContext(_connectionString))
             {
                 var transaction = dbContext.Database.BeginTransaction();

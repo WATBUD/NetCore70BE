@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.OpenApi.Models;
@@ -14,28 +15,47 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
+//// 增加请求体大小限制
+//builder.WebHost.ConfigureKestrel(serverOptions =>
+//{
+//    serverOptions.Limits.MaxRequestBodySize = 500 * 1024 * 1024; // 设置新的MaxRequestBodySize
+//});
+//builder.Services.Configure<IISServerOptions>(serverOptions =>
+//{
+//    serverOptions.MaxRequestBodySize = 500 * 1024 * 1024; // 设置新的MaxRequestBodySize
+//});
+
+//builder.Services.Configure<FormOptions>(options =>
+//{
+//    options.MultipartBodyLengthLimit = 500 * 1024 * 1024; // 设置新的MultipartBodyLengthLimit 大小限制单位是字节（Bytes） 1KB就是1024 
+//});
 
 
 // 添加配置文件（appsettings.json）作为配置源
 //builder.Configuration.AddJsonFile("appsettings.json");
 
-//// 创建 DbContextOptions
-//var connectionString = builder.Configuration.GetConnectionString("RNDatingDBConnection");
-//var dbContextOptions = new DbContextOptionsBuilder<RndatingDbContext>()
-//    .UseMySql(connectionString, ServerVersion.Parse("8.1.0-mysql"))
-//    .Options;
 
-//// 注册 DbContextOptions
-//builder.Services.AddSingleton(dbContextOptions);
 
-//// 注册 DbContext，将配置传递给构造函数
-//builder.Services.AddDbContext<RndatingDbContext>(options =>
+//// 允许跨域请求，包括本地主机
+//builder.Services.AddCors(options =>
 //{
-//    options.UseMySql(connectionString, ServerVersion.Parse("8.1.0-mysql"));
+//    options.AddPolicy("AllowFrontend", builder =>
+//    {
+//        //builder.WithOrigins("http://localhost:7777")
+//        //       .AllowAnyHeader()
+//        //       .AllowAnyMethod();
+//       // builder.WithOrigins("http://localhost:7129")
+//       //.AllowAnyHeader()
+//       //.AllowAnyMethod();
+//       builder
+//            .AllowAnyOrigin()
+//            .AllowAnyHeader()
+//            .AllowAnyMethod()
+//            .WithExposedHeaders("Content-Disposition");
+
+//        //builder.SetIsOriginAllowed(Origin => new Uri(Origin).Host != "");
+//    });
 //});
-
-
-
 
 
 // 注册自定义中间件
@@ -108,6 +128,8 @@ if (app.Environment.IsDevelopment())
 
     });
 }
+// 启用CORS中间件
+app.UseCors("AllowFrontend");
 //app.MapGet("/", () => "DB不存在!");
 
 //app.MapGet("/", () =>
@@ -123,12 +145,44 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+//// 启用文件上传路由
+
 
 //app.MapGet("/api/online-users", (OnlineUsersService onlineUsersService) =>
 //{
 //    int count = onlineUsersService.GetOnlineUserCount();
 //    return new { Count = count };
 //});
+//app.Use(async (context, next) =>
+//{
+//    try
+//    {
+//        await next(); // 执行下一个中间件或请求处理程序
+//    }
+//    catch (Exception ex)
+//    {
+//        context.Response.StatusCode = 500; // 设置适当的状态码
+//        await context.Response.WriteAsync(ex.Message);
+//    }
+//});
+//app.MapPost("/upload-file",async (HttpContext context) =>
+//{
+//    context.Request.EnableBuffering();
+//    try
+//    {
+//        var file = context.Request.Form.Files.FirstOrDefault();
+//        // 在这里执行文件上传逻辑
+//        await context.Response.WriteAsync("File uploaded successfully");
+//    }
+//    catch (Exception ex)
+//    {
+//        context.Response.StatusCode = 500; // 设置适当的状态码
+//        await context.Response.WriteAsync(ex.Message);
+//        // 在异常处理之后，不再返回响应，而是抛出异常以被上面的中间件捕获
+//        //throw;
+//    }
+//});
+
 
 app.Run();
 
