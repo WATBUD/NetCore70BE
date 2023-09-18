@@ -25,10 +25,10 @@ var builder = WebApplication.CreateBuilder(args);
 //    serverOptions.MaxRequestBodySize = 500 * 1024 * 1024; // 设置新的MaxRequestBodySize
 //});
 
-//builder.Services.Configure<FormOptions>(options =>
-//{
-//    options.MultipartBodyLengthLimit = 500 * 1024 * 1024; // 设置新的MultipartBodyLengthLimit 大小限制单位是字节（Bytes） 1KB就是1024 
-//});
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 1 * 1024 * 1024; // 设置新的MultipartBodyLengthLimit 大小限制单位是字节（Bytes） 1KB就是1024 
+});
 
 
 // 添加配置文件（appsettings.json）作为配置源

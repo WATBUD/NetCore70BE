@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-
 namespace NetCore60.Models;
-
 public partial class VUsersDetailDTO
 {
     [Required]
@@ -17,7 +15,7 @@ public partial class VUsersDetailDTO
 
     public string? Gender { get; set; }
 
-    public DateOnly? Birthday { get; set; }
+    public DateTime? Birthday { get; set; }
 
     public string? UserHasTag { get; set; }
 

@@ -107,6 +107,11 @@ namespace NetCore60.Services
 
         public object? UpdateUserDetail(VUsersDetailDTO _VUsersDetailDTO)
         {
+            if(_VUsersDetailDTO.UserId == null)
+            {
+                return "用戶ID不存在";
+            }
+        
             // 查询数据库中的用户数据，然后将其映射为 UserDto 对象并返回
             using (var dbContext = new RndatingDbContext(_connectionString))
             {
@@ -138,7 +143,21 @@ namespace NetCore60.Services
                             var newValue = typeof(VUsersDetailDTO).GetProperty(propertyInfo.Name)?.GetValue(_VUsersDetailDTO);
                             if (newValue != null)
                             {
-                                if (propertyInfo.Name == "ProfilePicture")
+  
+                                if (propertyInfo.Name == "Birthday")
+                                {
+                                    DateTime dateTime = (DateTime)newValue; // 一个 DateTime? 对象與
+                                    if (DataInspectionAndProcessingService.IsAgeAboveThreshold(dateTime, 20)){
+                                        return "年齡現代差距過大過大,請輸入正確年齡";
+                                    }
+                                    else
+                                    {
+                                        var date = new DateOnly(dateTime.Year, dateTime.Month, dateTime.Day);
+                                        userDetailEntity.Birthday = date;
+
+                                    }
+                                }
+                                else if (propertyInfo.Name == "ProfilePicture")
                                 {
                                     string newFileName = SystemService.UploadImageFileToServer((IFormFile)newValue, true);
                                     userDetailEntity.ProfilePicture = newFileName;

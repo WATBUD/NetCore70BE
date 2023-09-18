@@ -43,6 +43,26 @@ namespace NetCore60.Services
 
             return pascalCase;
         }
+        public static bool IsAgeAboveThreshold(DateTime? birthdate, int ageThreshold)
+        {
+            if (birthdate.HasValue)
+            {
+                DateTime currentDate = DateTime.Now;
+                int age = currentDate.Year - birthdate.Value.Year;
+
+                // 如果生日还未过，年龄减1
+                if (currentDate < birthdate.Value.AddYears(age))
+                {
+                    age--;
+                }
+
+                return age >= ageThreshold;
+            }
+
+            // 如果生日为空，返回 false 或者根据需要进行其他处理
+            return false;
+        }
+
     }
 
 

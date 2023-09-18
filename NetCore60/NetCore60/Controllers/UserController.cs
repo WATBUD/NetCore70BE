@@ -118,29 +118,34 @@ namespace NetCore60.Controllers
         /// <response code="400">Not found</response> 
         /// <param name="_VUsersDetailDTO.UserId">The ID of the user to update.</param>
         /// <returns>Returns a response indicating the result of the Detail update.</returns>
-        [HttpPost("UpdateUserDetail")]
-        //[SwaggerResponse(200, "Success")]
-        //[SwaggerResponse(400, "Bad Request")]
-        [SwaggerResponse(500, "Internal Server Error")]
-        public IActionResult UpdateUserDetail(VUsersDetailDTO _VUsersDetailDTO)
-        {
+        //[HttpPost("UpdateUserDetail")]
+        ////[SwaggerResponse(200, "Success")]
+        ////[SwaggerResponse(400, "Bad Request")]
+        //[SwaggerResponse(500, "Internal Server Error")]
+        //public IActionResult UpdateUserDetail(VUsersDetailDTO _VUsersDetailDTO)
+        //{
             
-            var callbackResult = _databaseService.UpdateUserDetail(_VUsersDetailDTO);
-            if (callbackResult?.GetType() == typeof(string))
-            {
-                return Ok(callbackResult);// 非成功錯誤訊息
+        //    var callbackResult = _databaseService.UpdateUserDetail(_VUsersDetailDTO);
+        //    if (callbackResult?.GetType() == typeof(string))
+        //    {
+        //        return Ok(callbackResult);// 非成功錯誤訊息
 
-            }
-            else
-            {
-                var successMessage = "更新使用者詳細訊息成功";
-                var result = new OkObjectResult(new { Message = successMessage, Data = callbackResult });
-                return result;
-            }
+        //    }
+        //    else
+        //    {
+        //        var successMessage = "更新使用者詳細訊息成功";
+        //        var result = new OkObjectResult(new { Message = successMessage, Data = callbackResult });
+        //        return result;
+        //    }
 
-        }
+        //}
+
+
+
+
+
+
         [HttpPost("UpdateUserDetailByFormData")]
-        //public IActionResult UpdateUserDetailByFormData(IFormCollection formData)//keytype:file text name:custom value:custom,
         public IActionResult UploadMixedFormData([FromForm] VUsersDetailDTO _VUsersDetailDTO)
         {
             try
@@ -150,11 +155,8 @@ namespace NetCore60.Controllers
                 //var userDetail = System.Text.Json.JsonSerializer.Deserialize<Object>(_VUsersDetailDTO);
                 //JsonDocument jsonDocument = JsonDocument.Parse(_VUsersDetailDTO);
                 var callbackResult = _databaseService.UpdateUserDetail(_VUsersDetailDTO);
-                if (_VUsersDetailDTO.UserId == null)
-                {
-                    return Ok("用戶ID不存在");
-                }
-                else if (callbackResult?.GetType() == typeof(string))
+       
+                if (callbackResult?.GetType() == typeof(string))
                 {
                     return Ok(callbackResult);// 非成功錯誤訊息
                 }
@@ -231,8 +233,18 @@ namespace NetCore60.Controllers
 
         //}
 
+        /// <summary>
+        /// 上传图片文件到服务器
+        /// </summary>
+        /// <remarks>限制最大上传大小为1MB</remarks>
+        /// <param name="file">要上传的图片文件</param>
+        /// <returns>
+        /// 200 - OK，上传成功
+        /// 400 - Not Found，未找到
+        /// </returns>
         [HttpPost("UploadImageFileToServer")]
-        //[Consumes("multipart/form-data")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult UploadImageFileToServer(IFormFile file)
         {
             string resultMessage= SystemService.UploadImageFileToServer(file);
