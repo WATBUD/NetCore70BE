@@ -36,26 +36,32 @@ builder.Services.Configure<FormOptions>(options =>
 
 
 
-//// 允许跨域请求，包括本地主机
-//builder.Services.AddCors(options =>
-//{
-//    options.AddPolicy("AllowFrontend", builder =>
-//    {
-//        //builder.WithOrigins("http://localhost:7777")
-//        //       .AllowAnyHeader()
-//        //       .AllowAnyMethod();
-//       // builder.WithOrigins("http://localhost:7129")
-//       //.AllowAnyHeader()
-//       //.AllowAnyMethod();
-//       builder
-//            .AllowAnyOrigin()
-//            .AllowAnyHeader()
-//            .AllowAnyMethod()
-//            .WithExposedHeaders("Content-Disposition");
+// 允许跨域请求，包括本地主机
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", builder =>
+    {
+        //builder.WithOrigins("http://localhost")
+        //       .AllowAnyHeader()
+        //       .AllowAnyMethod();
+        // builder.WithOrigins("http://localhost:7129")
+        //.AllowAnyHeader()
+        //.AllowAnyMethod();
+        //builder
+        //     .AllowAnyOrigin()
+        //     .AllowAnyHeader()
+        //     .AllowAnyMethod()
+        //     .WithExposedHeaders("Content-Disposition");
 
-//        //builder.SetIsOriginAllowed(Origin => new Uri(Origin).Host != "");
-//    });
-//});
+        builder.SetIsOriginAllowed(Origin =>
+        {
+            string host = new Uri(Origin).Host;
+
+            //Console.WriteLine("Origin Host: " + host);
+            return host == "localhost";
+        });
+    });
+});
 
 
 // 注册自定义中间件

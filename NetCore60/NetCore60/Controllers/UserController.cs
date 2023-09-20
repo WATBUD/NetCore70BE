@@ -234,12 +234,12 @@ namespace NetCore60.Controllers
         //}
 
         /// <summary>
-        /// 上传图片文件到服务器
+        /// 上傳圖片到伺服器
         /// </summary>
-        /// <remarks>限制最大上传大小为1MB</remarks>
-        /// <param name="file">要上传的图片文件</param>
+        /// <remarks>限制最大上傳大小為1MB</remarks>
+        /// <param name="file">上傳的圖片文件</param>
         /// <returns>
-        /// 200 - OK，上传成功
+        /// 200 - OK，上傳成功
         /// 400 - Not Found，未找到
         /// </returns>
         [HttpPost("UploadImageFileToServer")]
