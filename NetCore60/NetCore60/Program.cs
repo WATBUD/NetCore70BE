@@ -99,6 +99,7 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("G_Test", new OpenApiInfo { Title = "TestAPI V1", Version = "G_Test" });
     c.SwaggerDoc("G_User", new OpenApiInfo { Title = "Users API", Version = "G_User" });
 
+    c.DocumentFilter<DisableSchemaGenerationFilter>();
     c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "NetCore60.xml")); // XML 注释文件路径
 
 
