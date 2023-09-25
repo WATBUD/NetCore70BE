@@ -25,11 +25,12 @@ namespace NetCore60.Controllers
             _databaseService = databaseService;
 
         }
+        //ActionResult<User> Can generate schema UI
         /// <summary> 
-        ///     創造使用者
+        ///     創造使用者        
         /// </summary>
         [HttpPost("CreateUser")]
-        public ActionResult<User> Create([Required] string _account, [Required] string _password, [Required] string _email)
+        public IActionResult Create([Required] string _account, [Required] string _password, [Required] string _email)
         {
             string newUserId = _databaseService.InsertUserAccount(_account, _password, _email);
             return Ok(newUserId);
