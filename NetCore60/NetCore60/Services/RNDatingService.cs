@@ -62,13 +62,19 @@ namespace NetCore60.Services
 
         }
 
-        public User? GetUserById(int id)
+        public Object? GetUserById(int id)
         {
             // 查询数据库中的用户数据，然后将其映射为 UserDto 对象并返回
             using (var context = new RndatingDbContext(_connectionString))
             {
 
-                var userEntity = context.Users.FirstOrDefault(u => u.UserId == id);
+                var userEntity = context.VUsersDetails.Where(u => u.UserId == id).Select(data => new
+                {
+                    data.Account,
+                    data.Username,
+                    data.Email,
+                    data.CreatedAt,
+                }).FirstOrDefault();
                 return userEntity;
 
             }
@@ -277,14 +283,38 @@ namespace NetCore60.Services
             //return "No data entered";
         }
 
-        public VUsersDetail? GetUserDetail(int user_id)
+
+        public int GetLoginUserId(LoginFormModel loginData)
         {
             using (var context = new RndatingDbContext(_connectionString))
             {
 
-                var userEntity = context.VUsersDetails.FirstOrDefault(u => u.UdUserId == user_id);
+                var userEntity = context.VUsersDetails.FirstOrDefault(u => u.Account == loginData.Account && u.Password == loginData.Password);
+
+                if (userEntity != null) 
+                {
+                    return userEntity.UserId;
+                }
+                return -1;
+            }
+        }
+
+
+        public Object? GetUserDetail(int user_id)
+        {
+            using (var context = new RndatingDbContext(_connectionString))
+            {
+                //var userEntity = context.VUsersDetails.FirstOrDefault(u => u.UdUserId == user_id)
+                var userEntity = context.VUsersDetails.Where(u => u.UdUserId == user_id)
+                .Select(u => new
+                {
+                    u.UserId,
+                    u.Account,
+                    u.Location,
+                    u.Interests,
+                    // ...
+                }).FirstOrDefault();
                 return userEntity;
-                //return new VUsersDetail();
             }
         }
 

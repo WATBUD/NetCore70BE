@@ -11,6 +11,8 @@ using System.Net.Sockets;
 using System.Net;
 using System.Text.Json;
 using Newtonsoft.Json.Linq;
+using System.Numerics;
+using Microsoft.AspNetCore.Authorization;
 
 namespace NetCore60.Controllers
 {
@@ -46,10 +48,14 @@ namespace NetCore60.Controllers
         /// <returns></returns> 
         /// <remarks>注意事項</remarks> 
         /// 
+        [Authorize]
         [HttpGet("CheckByID/{id}")]
-        public IActionResult GetUserById(int id)
+        public IActionResult GetUserById()
         {
-            var user = _databaseService.GetUserById(id);
+            string jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "", StringComparison.OrdinalIgnoreCase);
+            int getUserIdFromToken = JsonWebTokenService.TryGetUserIdFromJwtToken(jwtToken);
+
+            var user = _databaseService.GetUserById(getUserIdFromToken);
 
             if (user == null)
             {
@@ -60,6 +66,46 @@ namespace NetCore60.Controllers
             return Ok(user);
         }
 
+        /// <summary> 
+        ///  登入使用者帳號
+        /// </summary>
+        /// <param name="formModel"></param>
+        /// <returns></returns> 
+        /// <remarks>注意事項</remarks> 
+        /// 
+        [HttpPost("Login")]
+        public IActionResult Login([FromForm] LoginFormModel formModel)
+        {
+            int user = _databaseService.GetLoginUserId(formModel);
+            if (user == -1)
+            {
+                return Ok("Please check your username and password.");
+                
+            }
+            else{
+                var token = JsonWebTokenService.GenerateJwtToken(user);
+                return Ok(new { token });
+            }
+        }
+        /// <summary> 
+        ///  GetJWTToken
+        /// </summary>
+        [HttpPost("GetJWTToken")]
+        public IActionResult GetJWTToken()
+        {
+            var token = JsonWebTokenService.GenerateJwtToken(10);
+            return Ok(new { token });
+        }
+
+        /// <summary> 
+        ///  驗證Token
+        /// </summary>
+        [HttpPost("ValidateToken")]
+        public IActionResult ValidateToken([Required] string token)
+        {
+            int user = JsonWebTokenService.TryGetUserIdFromJwtToken(token);
+            return Ok(new { user });
+        }
 
         /// <summary> 
         ///  獲取用户詳細訊息
@@ -244,8 +290,6 @@ namespace NetCore60.Controllers
         /// 400 - Not Found，未找到
         /// </returns>
         [HttpPost("UploadImageFileToServer")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult UploadImageFileToServer(IFormFile file)
         {
             string resultMessage= SystemService.UploadImageFileToServer(file);

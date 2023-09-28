@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using NetCore60.Controllers;
 using NetCore60.Models;
@@ -12,6 +15,7 @@ using Swashbuckle.AspNetCore.SwaggerUI;
 using System;
 using System.Diagnostics;
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
@@ -29,6 +33,31 @@ builder.Services.Configure<FormOptions>(options =>
 {
     options.MultipartBodyLengthLimit = 1 * 1024 * 1024; // 设置新的MultipartBodyLengthLimit 大小限制单位是字节（Bytes） 1KB就是1024 
 });
+
+//int keyLengthInBytes = 32; // 生成32字节的密钥（256位）
+//string secretKey = JsonWebTokenService.GenerateSecretKey(keyLengthInBytes);
+//string generateJwtToken = JsonWebTokenService.GenerateJwtToken(5);
+//int getUserIdFromToken = JsonWebTokenService.TryGetUserIdFromJwtToken(generateJwtToken);
+
+//Console.WriteLine(secretKey);
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        //options.SaveToken = false;
+        //options.RequireHttpsMetadata = false;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JsonWebTokenService.baseSecretKey)),
+
+        };
+});
+
+
 
 
 // 添加配置文件（appsettings.json）作为配置源
@@ -98,7 +127,28 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("G_Test", new OpenApiInfo { Title = "TestAPI V1", Version = "G_Test" });
     c.SwaggerDoc("G_User", new OpenApiInfo { Title = "Users API", Version = "G_User" });
-
+    // 配置 Swagger 需要的安全验证信息，例如 JWT Token
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                Array.Empty<string>()
+            }
+        });
     c.DocumentFilter<DisableSchemaGenerationFilter>();
     c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "NetCore60.xml")); // XML 注释文件路径
 
@@ -117,6 +167,7 @@ builder.Services.AddSwaggerGen(c =>
     //c.IncludeXmlComments(xmlPath);
 });
 var app = builder.Build();
+
 
 app.UseMiddleware<RequestLoggingMiddleware>();
 // Configure the HTTP request pipeline.
@@ -146,14 +197,27 @@ app.UseCors("AllowFrontend");
 
 //    return "Hello, World!";
 //});
-
 app.UseHttpsRedirection();
 
+// 启用身份验证
+app.UseAuthentication();
+// 启用授权
 app.UseAuthorization();
 
 app.MapControllers();
-//// 启用文件上传路由
 
+
+////// 启用文件上传路由
+//app.Map("/api", app =>
+//{
+//    app.UseEndpoints(endpoints =>
+//    {
+//        endpoints.MapGet("/", async context =>
+//        {
+//            await context.Response.WriteAsync("Hello, JWT API!");
+//        }).RequireAuthorization(); // 需要身份验证
+//    });
+//});
 
 //app.MapGet("/api/online-users", (OnlineUsersService onlineUsersService) =>
 //{
@@ -172,6 +236,9 @@ app.MapControllers();
 //        await context.Response.WriteAsync(ex.Message);
 //    }
 //});
+
+
+
 //app.MapPost("/upload-file",async (HttpContext context) =>
 //{
 //    context.Request.EnableBuffering();

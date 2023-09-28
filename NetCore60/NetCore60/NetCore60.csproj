@@ -9,17 +9,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="NewFolder\**" />
     <Compile Remove="publish-folder\NewFolder\**" />
-    <Content Remove="NewFolder\**" />
     <Content Remove="publish-folder\NewFolder\**" />
-    <EmbeddedResource Remove="NewFolder\**" />
     <EmbeddedResource Remove="publish-folder\NewFolder\**" />
-    <None Remove="NewFolder\**" />
     <None Remove="publish-folder\NewFolder\**" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Dotnet.CodeFormatter.BuildTask.Fork" Version="0.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.22" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.10">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
