@@ -42,14 +42,9 @@ namespace NetCore60.Controllers
         /// <summary> 
         /// 檢查用户基本訊息
         /// </summary>
-        /// <param name="id">Member Id</param> 
-        /// <response code="200">OK</response> 
-        /// <response code="400">Not found</response> 
         /// <returns></returns> 
-        /// <remarks>注意事項</remarks> 
-        /// 
         [Authorize]
-        [HttpGet("CheckByID/{id}")]
+        [HttpGet("CheckUserBasicInformation")]
         public IActionResult GetUserById()
         {
             string jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "", StringComparison.OrdinalIgnoreCase);
@@ -87,15 +82,15 @@ namespace NetCore60.Controllers
                 return Ok(new { token });
             }
         }
-        /// <summary> 
-        ///  GetJWTToken
-        /// </summary>
-        [HttpPost("GetJWTToken")]
-        public IActionResult GetJWTToken()
-        {
-            var token = JsonWebTokenService.GenerateJwtToken(10);
-            return Ok(new { token });
-        }
+        ///// <summary> 
+        /////  GetJWTToken
+        ///// </summary>
+        //[HttpPost("GetJWTToken")]
+        //public IActionResult GetJWTToken()
+        //{
+        //    var token = JsonWebTokenService.GenerateJwtToken(10);
+        //    return Ok(new { token });
+        //}
 
         /// <summary> 
         ///  驗證Token
