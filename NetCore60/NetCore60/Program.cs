@@ -125,8 +125,11 @@ builder.Services.AddControllers()
 //});
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("G_Test", new OpenApiInfo { Title = "TestAPI V1", Version = "G_Test" });
-    c.SwaggerDoc("G_User", new OpenApiInfo { Title = "Users API", Version = "G_User" });
+    //產生Swagger json
+    c.SwaggerDoc("G_Test", new OpenApiInfo { Title = "TestAPI V1", Version = "1.0" });
+    c.SwaggerDoc("G_User", new OpenApiInfo { Title = "Users API", Version = "1.0" });
+    c.SwaggerDoc("G_Stocks", new OpenApiInfo { Title = "StockInformation API", Version = "1.0" });
+
     // 配置 Swagger 需要的安全验证信息，例如 JWT Token
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
@@ -180,6 +183,8 @@ if (app.Environment.IsDevelopment())
     {
         c.SwaggerEndpoint("/swagger/G_User/swagger.json", "UsersAPI");//http
         c.SwaggerEndpoint("/swagger/G_Test/swagger.json", "TestAPI");
+        c.SwaggerEndpoint("/swagger/G_Stocks/swagger.json", "StockAPI");
+
         c.RoutePrefix = "api";
 
         //c.RoutePrefix = "Test";
