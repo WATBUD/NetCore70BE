@@ -182,7 +182,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/G_User/swagger.json", "UsersAPI");//http
-        c.SwaggerEndpoint("/swagger/G_Test/swagger.json", "TestAPI");
+        //c.SwaggerEndpoint("/swagger/G_Test/swagger.json", "TestAPI");
         c.SwaggerEndpoint("/swagger/G_Stocks/swagger.json", "StockAPI");
 
         c.RoutePrefix = "api";

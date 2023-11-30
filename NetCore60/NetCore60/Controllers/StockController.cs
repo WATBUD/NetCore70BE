@@ -47,8 +47,11 @@ namespace TodoApi.Controllers
 
         //}
 
-
-        [HttpGet("除權息預告表")]
+        /// <summary> 
+        ///     除權息預告表
+        /// </summary>
+        /// 
+        [HttpGet("exDividendNotice")]
         public async Task<IActionResult> exDividendNoticeFormAsync()
         {
             try
