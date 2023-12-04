@@ -14,6 +14,10 @@ namespace TodoApi.Controllers
     {
         private readonly RNDatingService _databaseService;
 
+        private readonly GetStocksService _getStocksService = new GetStocksService();
+
+
+
         public StockController(RNDatingService databaseService) // Constructor
         {
             _databaseService = databaseService;
@@ -56,9 +60,7 @@ namespace TodoApi.Controllers
         {
             try
             {
-
-                var _GetStocksService = new GetStocksService();
-                var response = await _GetStocksService.getExDividendNoticeForm();
+                var response = await _getStocksService.getExDividendNoticeForm();
 
                 if (response != null)
                 {
@@ -78,7 +80,35 @@ namespace TodoApi.Controllers
 
         }
 
+        /// <summary> 
+        ///     取得股票五檔
+        /// </summary>
+        /// 
+        [HttpGet("getFiveLevelsOfStockInformation")]
+        public async Task<IActionResult> getFiveLevelsOfStockInformationAync(string stockCode)
+        {
+            try
+            {
 
+                var response = await _getStocksService.getFiveLevelsOfStockInformation(stockCode);
+
+                if (response != null)
+                {
+                    //string combinedData = $"User IP Address: {ipAddress}\n响应数据：\n{response}";
+                    return Content(response);
+                }
+                else
+                {
+                    return Content("未能获取响应数据。");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return Content($"发生异常：{ex.Message}");
+            }
+
+        }
 
 
 

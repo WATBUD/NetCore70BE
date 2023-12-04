@@ -6,6 +6,7 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using System;
 using System.Drawing.Printing;
+using System.Xml.Linq;
 
 public class GetStocksService
 {
@@ -21,19 +22,11 @@ public class GetStocksService
     {
         try
         {
-            // 设置请求的URL
             string apiUrl = $"https://nordvpn.com/wp-admin/admin-ajax.php?action=get_user_info_data&ip={ipAddress}";
-
-            // 发送HTTP GET请求
             HttpResponseMessage response = await _httpClient.GetAsync(apiUrl);
-
-            // 检查响应状态码
             if (response.IsSuccessStatusCode)
             {
-                // 从响应中读取内容
                 string responseBody = await response.Content.ReadAsStringAsync();
-
-                // 返回响应数据
                 return responseBody;
             }
             else
@@ -115,8 +108,6 @@ public class GetStocksService
             HttpResponseMessage response = await _httpClient.SendAsync(request);
             //// 发送HTTP GET请求
             //HttpResponseMessage response = await _httpClient.GetAsync(apiUrl);
-
-            // 检查响应状态码
             if (response.IsSuccessStatusCode)
             {
                 string responseBody = await response.Content.ReadAsStringAsync();
@@ -134,6 +125,43 @@ public class GetStocksService
             return "发生异常：" + ex.Message;
         }
     }
+
+    public async Task<string> getFiveLevelsOfStockInformation(string stockCode)
+    {
+        try
+        {
+            //String interpolation using $
+            var apiUrl = $"https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=tse_" +
+                $"{stockCode}.tw&json=1&delay=0&_=1701445552510";
+
+
+            var request = new HttpRequestMessage(HttpMethod.Get, apiUrl);
+            HttpResponseMessage response = await _httpClient.SendAsync(request);
+            //// 发送HTTP GET请求
+            //HttpResponseMessage response = await _httpClient.GetAsync(apiUrl);
+            if (response.IsSuccessStatusCode)
+            {
+                string responseBody = await response.Content.ReadAsStringAsync();
+
+
+                return responseBody;
+            }
+            else
+            {
+                //Console.WriteLine("HTTP请求失败，状态码：" + response.StatusCode);
+                return "HTTP请求失败，状态码：" + response.StatusCode;
+            }
+        }
+        catch (Exception ex)
+        {
+            //Console.WriteLine("发生异常：" + ex.Message);
+            return "发生异常：" + ex.Message;
+        }
+    }
+
+
+
+
 
     public async Task<string> GetQuoteTimeSalesStore()
     {

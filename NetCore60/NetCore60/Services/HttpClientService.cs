@@ -18,19 +18,11 @@ public class HttpClientService
     {
         try
         {
-            // 设置请求的URL
             string apiUrl = $"https://nordvpn.com/wp-admin/admin-ajax.php?action=get_user_info_data&ip={ipAddress}";
-
-            // 发送HTTP GET请求
             HttpResponseMessage response = await _httpClient.GetAsync(apiUrl);
-
-            // 检查响应状态码
             if (response.IsSuccessStatusCode)
             {
-                // 从响应中读取内容
                 string responseBody = await response.Content.ReadAsStringAsync();
-
-                // 返回响应数据
                 return responseBody;
             }
             else
