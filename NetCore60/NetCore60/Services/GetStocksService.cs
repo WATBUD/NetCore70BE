@@ -7,6 +7,7 @@ using OpenQA.Selenium.Chrome;
 using System;
 using System.Drawing.Printing;
 using System.Xml.Linq;
+using System.Text.Json.Nodes;
 
 public class GetStocksService
 {
@@ -43,7 +44,7 @@ public class GetStocksService
         }
     }
 
-    public async Task<string> getExDividendNoticeForm()
+    public async Task<string> getExDividendNoticeForm(int limitDays)
     {
         try
         {
@@ -106,12 +107,41 @@ public class GetStocksService
             //request.Headers.Add("X-Requested-With", "XMLHttpRequest");
             // Send the request
             HttpResponseMessage response = await _httpClient.SendAsync(request);
-            //// 发送HTTP GET请求
             //HttpResponseMessage response = await _httpClient.GetAsync(apiUrl);
             if (response.IsSuccessStatusCode)
             {
                 string responseBody = await response.Content.ReadAsStringAsync();
-                return responseBody;
+                var jsonObject = JObject.Parse(responseBody);
+                var originalResult = jsonObject["ResultSet"]?["Result"] as JArray ?? new JArray();
+
+                DateTime currentDate = DateTime.Now;
+                var filteredData = new List<JToken>();
+                JArray tempData=new JArray();
+                foreach (JObject item in originalResult)
+                {
+                    tempData.Add(new JObject(new JProperty("除權息日期", item["V1"])));
+
+                    //if (item.ContainsKey("V14") && item["keyName"].ToString() != "A")
+                    //{
+                    //    tempData.Add(item);
+                    //}
+                    if (DateTime.TryParse(item["V15"]?.ToString(), out DateTime dateValue))
+                    {
+                        double daysDifference = (dateValue - currentDate).TotalDays;
+                        item.Add("除權息日期", item["V15"]);
+                        item.Remove("V15");
+                        if (daysDifference > 0 && daysDifference <= limitDays)
+                        {
+                            filteredData.Add(item);
+                        }
+                        //item.add("V14");
+                        //item.Add("代號", value);
+
+                    }
+                }
+                string filteredJson = JsonConvert.SerializeObject(tempData, Formatting.Indented);
+
+                return filteredJson;
             }
             else
             {
@@ -142,7 +172,7 @@ public class GetStocksService
             if (response.IsSuccessStatusCode)
             {
                 string responseBody = await response.Content.ReadAsStringAsync();
-
+                responseBody = responseBody.Replace("\n", "").Replace("\r", "");
 
                 return responseBody;
             }
