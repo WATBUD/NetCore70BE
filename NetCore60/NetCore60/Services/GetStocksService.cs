@@ -114,7 +114,6 @@ public class GetStocksService
                 string responseBody = await response.Content.ReadAsStringAsync();
                 var jsonObject = JObject.Parse(responseBody);
                 var originalResult = jsonObject["ResultSet"]?["Result"] as JArray ?? new JArray();
-
                 DateTime currentDate = DateTime.Now;
                 var filteredData = new List<JToken>();
                 JArray tempData=new JArray();
@@ -122,35 +121,21 @@ public class GetStocksService
                 {
 
                     var jsonData = new JObject();
-                    jsonData.Add("除權息日期", item["V9"]);
-                    jsonData.Add("股票名稱", item["V3"]);
-                    jsonData.Add("除息(現金股利)", item["V4"]);
-                    jsonData.Add("除權(股票股利)", item["V7"]);
-  
-                    //tempData.Add(new JObject(
-                    //    new JProperty("除權息日期", item["V9"]),
-                    //    new JProperty("股票名稱", item["V3"]),
-                    //    new JProperty("除息(現金股利)", item["V4"]),
-                    //   new JProperty("除權(股票股利)", item["V7"])
-                    //));
-
-
-                    tempData.Add(jsonData);
-                    //if (item.ContainsKey("V14") && item["keyName"].ToString() != "A")
-                    //{
-                    //    tempData.Add(item);
-                    //}
-                    if (DateTime.TryParse(item["V15"]?.ToString(), out DateTime dateValue))
+                    if (DateTime.TryParse(item["V9"]?.ToString(), out DateTime dateValue))
                     {
                         double daysDifference = (dateValue - currentDate).TotalDays;
-                        item.Add("除權息日期", item["V15"]);
-                        item.Remove("V15");
                         if (daysDifference > 0 && daysDifference <= limitDays)
                         {
-                            filteredData.Add(item);
+                            jsonData.Add("除權息日期", item["V9"]);
+                            jsonData.Add("股票名稱", item["V3"]);
+                            jsonData.Add("除息(現金股利)", item["V4"]);
+                            jsonData.Add("除權(股票股利)", item["V7"]);
+                            //tempData.Add(new JObject(
+                            //    new JProperty("除權息日期", item["V9"]),
+                            //));
+                            tempData.Add(jsonData);
+                            //filteredData.Add(item);
                         }
-                        //item.add("V14");
-                        //item.Add("代號", value);
 
                     }
                 }
