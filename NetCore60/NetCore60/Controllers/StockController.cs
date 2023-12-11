@@ -56,11 +56,11 @@ namespace TodoApi.Controllers
         /// </summary>
         /// 
         [HttpGet("exDividendNotice")]
-        public async Task<IActionResult> exDividendNoticeFormAsync(int limitDays)
+        public async Task<IActionResult> exDividendNoticeFormAsync(int limitDays=5,bool isCashDividend=false)
         {
             try
             {
-                var response = await _getStocksService.getExDividendNoticeForm(limitDays);
+                var response = await _getStocksService.getExDividendNoticeForm(limitDays, isCashDividend);
 
                 if (response != null)
                 {

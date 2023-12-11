@@ -8,6 +8,7 @@ using System;
 using System.Drawing.Printing;
 using System.Xml.Linq;
 using System.Text.Json.Nodes;
+using System.Diagnostics.Eventing.Reader;
 
 public class GetStocksService
 {
@@ -44,7 +45,7 @@ public class GetStocksService
         }
     }
 
-    public async Task<string> getExDividendNoticeForm(int limitDays)
+    public async Task<string> getExDividendNoticeForm(int limitDays, bool isCashDividend=false)
     {
         try
         {
@@ -119,8 +120,22 @@ public class GetStocksService
                 JArray tempData=new JArray();
                 foreach (JObject item in originalResult)
                 {
-                    tempData.Add(new JObject(new JProperty("除權息日期", item["V1"])));
 
+                    var jsonData = new JObject();
+                    jsonData.Add("除權息日期", item["V9"]);
+                    jsonData.Add("股票名稱", item["V3"]);
+                    jsonData.Add("除息(現金股利)", item["V4"]);
+                    jsonData.Add("除權(股票股利)", item["V7"]);
+  
+                    //tempData.Add(new JObject(
+                    //    new JProperty("除權息日期", item["V9"]),
+                    //    new JProperty("股票名稱", item["V3"]),
+                    //    new JProperty("除息(現金股利)", item["V4"]),
+                    //   new JProperty("除權(股票股利)", item["V7"])
+                    //));
+
+
+                    tempData.Add(jsonData);
                     //if (item.ContainsKey("V14") && item["keyName"].ToString() != "A")
                     //{
                     //    tempData.Add(item);
@@ -138,6 +153,13 @@ public class GetStocksService
                         //item.Add("代號", value);
 
                     }
+                }
+                if (isCashDividend)
+                {
+                    tempData = new JArray(tempData.Where(item => !string.IsNullOrWhiteSpace(item["除息(現金股利)"]?.ToString())));
+                }
+                else
+                {
                 }
                 string filteredJson = JsonConvert.SerializeObject(tempData, Formatting.Indented);
 
