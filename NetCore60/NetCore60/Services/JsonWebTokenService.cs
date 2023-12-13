@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -48,6 +49,7 @@ namespace NetCore60.Services
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(baseSecretKey);
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[]
@@ -60,8 +62,13 @@ namespace NetCore60.Services
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
 
             };
+
             var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+            var tokenString = tokenHandler.WriteToken(token);
+            // Invalidate previous token and update the store with the new token
+            TokenStore.UpdateActiveTokenForUser(userId, tokenString);
+
+            return tokenString;
         }
         public static int TryGetUserIdFromJwtToken(string token)
         {
@@ -107,6 +114,9 @@ namespace NetCore60.Services
                 return -1; // 返回默认值表示验证失败
             }
         }
+
+
+
     }
 
 }

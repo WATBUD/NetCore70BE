@@ -98,8 +98,17 @@ namespace NetCore60.Controllers
         [HttpPost("ValidateToken")]
         public IActionResult ValidateToken([Required] string token)
         {
-            int user = JsonWebTokenService.TryGetUserIdFromJwtToken(token);
-            return Ok(new { user });
+            var user = TokenStore.FindUserIdByToken(token);
+            if (user == null)
+            {
+                // Return a response indicating the token does not exist
+                return Ok("token does not exist");
+            }
+            else
+            {
+                // Return the user ID if the token exists
+                return Ok(user);
+            }
         }
 
         /// <summary> 
@@ -109,8 +118,9 @@ namespace NetCore60.Controllers
         /// <response code="200">OK</response> 
         /// <response code="400">Not found</response> 
         /// <returns></returns> 
-        /// <remarks>注意事項</remarks> 
+        /// <remarks>獲取用户詳細訊息</remarks> 
         /// 
+        [Authorize]
         [HttpGet("GetUserDetail/{id}")]
         public IActionResult GetUserDetail(int id)
         {

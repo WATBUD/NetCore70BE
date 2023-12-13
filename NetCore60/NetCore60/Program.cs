@@ -55,7 +55,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JsonWebTokenService.baseSecretKey)),
 
         };
-});
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = TokenStore.ValidateToken
+        };
+    });
 
 
 

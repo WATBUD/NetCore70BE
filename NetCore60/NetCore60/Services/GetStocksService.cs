@@ -45,7 +45,7 @@ public class GetStocksService
         }
     }
 
-    public async Task<string> getExDividendNoticeForm(int limitDays, bool isCashDividend=false)
+    public async Task<string> getExDividendNoticeForm(int limitDays, bool isCashDividend = false)
     {
         try
         {
@@ -116,7 +116,7 @@ public class GetStocksService
                 var originalResult = jsonObject["ResultSet"]?["Result"] as JArray ?? new JArray();
                 DateTime currentDate = DateTime.Now;
                 var filteredData = new List<JToken>();
-                JArray tempData=new JArray();
+                JArray tempData = new JArray();
                 foreach (JObject item in originalResult)
                 {
 
@@ -129,7 +129,10 @@ public class GetStocksService
                             jsonData.Add("除權息日期", item["V9"]);
                             jsonData.Add("股票名稱", item["V3"]);
                             jsonData.Add("除息(現金股利)", item["V4"]);
-                            jsonData.Add("除權(股票股利)", item["V7"]);
+                            if (!isCashDividend)
+                            {
+                                jsonData.Add("除權(股票股利)", item["V7"]);
+                            }
                             //tempData.Add(new JObject(
                             //    new JProperty("除權息日期", item["V9"]),
                             //));
@@ -235,7 +238,7 @@ public class GetStocksService
     }
 
 
-    public async Task<string> FetchAndParseJson(string? url= "https://tw.stock.yahoo.com/quote/3231.TW/time-sales")
+    public async Task<string> FetchAndParseJson(string? url = "https://tw.stock.yahoo.com/quote/3231.TW/time-sales")
     {
         var httpClient = new HttpClient();
         var response = await httpClient.GetAsync(url);
