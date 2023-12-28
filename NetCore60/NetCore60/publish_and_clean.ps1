@@ -1,8 +1,6 @@
 ﻿cd F:\Projectlibrary\NetCoreBE\NetCore60\NetCore60
-
 Stop-WebAppPool -Name "RNDatingService"
 Stop-WebSite -Name "RNDatingService"
-
 
 #Remove-Item -Path "F:\Projectlibrary\NetCoreBE\NetCore60\NetCore60\bin\Release\net6.0\publish\*" -Force -Recurse"
 

@@ -1,14 +1,12 @@
-﻿using HtmlAgilityPack;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
 using System;
 using System.Drawing.Printing;
 using System.Xml.Linq;
 using System.Text.Json.Nodes;
 using System.Diagnostics.Eventing.Reader;
+using HtmlAgilityPack;
 
 public class GetStocksService
 {
