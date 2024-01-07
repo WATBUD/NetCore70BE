@@ -7,6 +7,8 @@ using System.Xml.Linq;
 using System.Text.Json.Nodes;
 using System.Diagnostics.Eventing.Reader;
 using HtmlAgilityPack;
+using System.ComponentModel;
+using System.Globalization;
 
 public class GetStocksService
 {
@@ -199,20 +201,13 @@ public class GetStocksService
 
     public async Task<string> getThreeMajorInstitutionalInvestors()
     {
+        //JToken value;
+
         try
         {
-            var _responseClosingDates = await getStockMarketOpeningAndClosingDates(false);
+            var _LatestOpeningDate = await getTheLatestOpeningDate();
 
-            var currentDate = DateTime.Now;
-
-            // 循环递减日期，直到找到不是周六的日期
-            while (currentDate.DayOfWeek == DayOfWeek.Saturday || currentDate.DayOfWeek == DayOfWeek.Sunday)
-            {
-                currentDate = currentDate.AddDays(-1);
-            }
-            var _yyyyMMdd = currentDate.ToString("yyyyMMdd");
-
-            var apiUrl = $"https://wwwc.twse.com.tw/rwd/zh/fund/T86?date={_yyyyMMdd}&selectType=ALL&response=json&_=1704631325883";
+            var apiUrl = $"https://wwwc.twse.com.tw/rwd/zh/fund/T86?date={_LatestOpeningDate}&selectType=ALL&response=json&_=1704631325883";
 
 
             var request = new HttpRequestMessage(HttpMethod.Get, apiUrl);
@@ -222,9 +217,40 @@ public class GetStocksService
             if (response.IsSuccessStatusCode)
             {
                 string responseBody = await response.Content.ReadAsStringAsync();
-                responseBody = responseBody.Replace("\n", "").Replace("\r", "");
+                //responseBody = responseBody.Replace("\n", "").Replace("\r", "");
+                var jsonObject = JObject.Parse(responseBody);
+                var originalResult = jsonObject["data"] as JArray ?? new JArray();
+                if (originalResult.Count > 0)
+                {
+                    var zz = originalResult[0][5];
+                    var sortedResult = originalResult
+               .Select(item => item as JArray)
+                    .OrderByDescending(item =>
+                    {
+                        var container = item as JArray;
+                        if (container != null)
+                        {
+                            var valueString = container[5].ToString(); // 将 JValue 转换为字符串
+                            int value;
 
-                return responseBody;
+                            // 尝试将带有千位分隔符的字符串转换为整数
+                            if (int.TryParse(valueString, NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out value))
+                            {
+                                return value;
+                            }
+                        }
+                        return 0; // 如果无法获取值或转换失败，则返回默认值
+                    })
+               .ToArray();
+                    var top100Items = sortedResult.Take(10).ToList();
+                    string jsonResult = JsonConvert.SerializeObject(top100Items);
+                    return jsonResult;
+                }
+                else
+                {
+                    return "HTTP请求失败，状态码：" + response.StatusCode;
+                }
+
             }
             else
             {
@@ -239,7 +265,36 @@ public class GetStocksService
         }
     }
 
-    public async Task<string> getStockMarketOpeningAndClosingDates(bool requestAllData=false)
+
+
+
+   public async Task<string> getTheLatestOpeningDate()
+    {
+        try
+        {
+            var _responseClosingDates = await getStockMarketOpeningAndClosingDates(false);
+
+            var currentDate = DateTime.Now;
+            if (currentDate.Hour < 20)
+            {
+                currentDate = currentDate.AddDays(-1);
+            }
+            // 循环递减日期，直到找到不是周六的日期
+            while (currentDate.DayOfWeek == DayOfWeek.Saturday || currentDate.DayOfWeek == DayOfWeek.Sunday)
+            {
+                currentDate = currentDate.AddDays(-1);
+            }
+            var _yyyyMMdd = currentDate.ToString("yyyyMMdd");
+            return _yyyyMMdd; // 或者返回錯誤信息，取決於您的需求
+        }
+        catch (Exception ex)
+        {
+            return "发生异常：" + ex.Message;
+        }
+    }
+
+
+    public async Task<string> getStockMarketOpeningAndClosingDates(bool requestAllData = false)
     {
         try
         {
@@ -271,7 +326,7 @@ public class GetStocksService
 
                     return jsonResult;
                 }
-   
+
             }
             else
             {

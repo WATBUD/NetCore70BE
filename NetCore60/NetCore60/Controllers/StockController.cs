@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Text.Json.Nodes;
 
 namespace TodoApi.Controllers
 {
@@ -123,12 +124,23 @@ namespace TodoApi.Controllers
             try
             {
 
-                var response = await _getStocksService.getThreeMajorInstitutionalInvestors();
+                var responseJsonString = await _getStocksService.getThreeMajorInstitutionalInvestors();
 
-                if (response != null)
+                if (responseJsonString != null)
                 {
-                    //string combinedData = $"User IP Address: {ipAddress}\n响应数据：\n{response}";
-                    return Content(response);
+                    // Serialize the data object to JSON
+                    //string jsonString = JsonSerializer.Serialize(response);
+                    // Create a ContentResult and set the Content-Type header
+                    // Create a ContentResult and set the Content-Type header
+                    // Create a ContentResult and set the Content-Type header
+                    var contentResult = new ContentResult
+                    {
+                        Content = responseJsonString,
+                        ContentType = "application/json",
+                        StatusCode = 200 // HTTP status code for OK
+                    };
+
+                    return contentResult;
                 }
                 else
                 {
@@ -138,13 +150,38 @@ namespace TodoApi.Controllers
             }
             catch (Exception ex)
             {
-                return Content($"发生异常：{ex.Message}");
+                //return Content($"发生异常：{ex.Message}");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
 
         }
 
 
+        /// <summary> 
+        ///     取得最後一次開盤日期
+        /// </summary>
+        /// 
+        [HttpGet("getTheLatestOpeningDate")]
+        public async Task<IActionResult> GetTheLatestOpeningDate()
+        {
+            try
+            {
+                var response = await _getStocksService.getTheLatestOpeningDate();
 
+                if (response != null)
+                {
+                    return Content(response);
+                }
+                else
+                {
+                    return Content("未能获取响应数据。");
+                }
+            }
+            catch (Exception ex)
+            {
+                return Content($"发生异常：{ex.Message}");
+            }
+        }
 
 
         /// <summary> 
