@@ -197,9 +197,83 @@ public class GetStocksService
         }
     }
 
+    public async Task<string> getThreeMajorInstitutionalInvestors()
+    {
+        try
+        {
+            //String interpolation using $
+            var currentDate = DateTime.Now.ToString("yyyyMMdd");
+            var apiUrl = $"https://wwwc.twse.com.tw/rwd/zh/fund/T86?date={currentDate}&selectType=ALL&response=json&_=1704631325883";
 
 
+            var request = new HttpRequestMessage(HttpMethod.Get, apiUrl);
+            HttpResponseMessage response = await _httpClient.SendAsync(request);
+            //// 发送HTTP GET请求
+            //HttpResponseMessage response = await _httpClient.GetAsync(apiUrl);
+            if (response.IsSuccessStatusCode)
+            {
+                string responseBody = await response.Content.ReadAsStringAsync();
+                responseBody = responseBody.Replace("\n", "").Replace("\r", "");
 
+                return responseBody;
+            }
+            else
+            {
+                //Console.WriteLine("HTTP请求失败，状态码：" + response.StatusCode);
+                return "HTTP请求失败，状态码：" + response.StatusCode;
+            }
+        }
+        catch (Exception ex)
+        {
+            //Console.WriteLine("发生异常：" + ex.Message);
+            return "发生异常：" + ex.Message;
+        }
+    }
+
+    public async Task<string> getStockMarketOpeningAndClosingDates(bool requestAllData=false)
+    {
+        try
+        {
+            var apiUrl = $"https://www.twse.com.tw/rwd/zh/holidaySchedule/holidaySchedule?response=json&_=1704633406324";
+
+            var request = new HttpRequestMessage(HttpMethod.Get, apiUrl);
+            HttpResponseMessage response = await _httpClient.SendAsync(request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                string responseBody = await response.Content.ReadAsStringAsync();
+                responseBody = responseBody.Replace("\n", "").Replace("\r", "");
+
+                var jsonObject = JObject.Parse(responseBody);
+                var originalResult = jsonObject["data"] as JArray ?? new JArray();
+                if (originalResult.Count > 0 && !requestAllData)
+                {
+                    var dates = originalResult.Select(item => item[0].ToString()).ToArray();
+                    // 'dates' 现在包含了所有的日期值
+                    // 这里可以根据需要处理 'dates'
+                    string jsonResult = JsonConvert.SerializeObject(dates);
+
+                    return jsonResult;
+                }
+                else
+                {
+                    // 'originalResult' 为空，处理空数组的情况
+                    string jsonResult = JsonConvert.SerializeObject(jsonObject);
+
+                    return jsonResult;
+                }
+   
+            }
+            else
+            {
+                return null; // 或者返回錯誤信息，取決於您的需求
+            }
+        }
+        catch (Exception ex)
+        {
+            return null; // 或者返回錯誤信息，取決於您的需求
+        }
+    }
 
     public async Task<string> GetQuoteTimeSalesStore()
     {
@@ -234,7 +308,6 @@ public class GetStocksService
         }
         return "HTTP请求失败，状态码：";
     }
-
 
     public async Task<string> FetchAndParseJson(string? url = "https://tw.stock.yahoo.com/quote/3231.TW/time-sales")
     {
