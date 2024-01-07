@@ -32,6 +32,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<FormOptions>(options =>
 {
     options.MultipartBodyLengthLimit = 1 * 1024 * 1024; // 设置新的MultipartBodyLengthLimit 大小限制单位是字节（Bytes） 1KB就是1024 
+    //options.ValueLengthLimit = int.MaxValue; // Maximum size of a form or uploaded file, adjust as needed
+    //options.MultipartBodyLengthLimit = long.MaxValue; // Maximum length of multipart body data (e.g., file uploads), adjust as needed
+    //options.MultipartHeadersLengthLimit = int.MaxValue; // Maximum length of multipart headers, adjust as needed
+
 });
 
 //int keyLengthInBytes = 32; // 生成32字节的密钥（256位）
@@ -132,7 +136,7 @@ builder.Services.AddSwaggerGen(c =>
     //產生Swagger json
     c.SwaggerDoc("G_Test", new OpenApiInfo { Title = "TestAPI V1", Version = "1.0" });
     c.SwaggerDoc("G_User", new OpenApiInfo { Title = "Users API", Version = "1.0" });
-    c.SwaggerDoc("G_Stocks", new OpenApiInfo { Title = "StockInformation API", Version = "1.0" });
+    c.SwaggerDoc("G_Stocks", new OpenApiInfo { Title = "StockInformation API", Version = "2.0" });
     c.SwaggerDoc("SwaggerGroupGuitarTutorial", new OpenApiInfo { Title = "GuitarTutorialAPI", Version = "1.0" });
     // 配置 Swagger 需要的安全验证信息，例如 JWT Token
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -158,15 +162,15 @@ builder.Services.AddSwaggerGen(c =>
         });
     c.DocumentFilter<DisableSchemaGenerationFilter>();
     c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "NetCore60.xml")); // XML 注释文件路径
-
+    c.SchemaFilter<DateOnlySchemaFilter>(); // 自定义日期字段的显示方式
+    c.SchemaFilter<RemoveCreatedAtPropertySchemaFilter>();
 
     // Get and display Swashbuckle version
     //var swaggerGenVersion = typeof(SwaggerGenerator).Assembly.GetName().Version;
     //Console.WriteLine($"Swashbuckle version: {swaggerGenVersion}");
     //c.DocumentFilter<ControllerNameFilter>("User"); // 将控制器名称传递给过滤器
 
-    c.SchemaFilter<DateOnlySchemaFilter>(); // 自定义日期字段的显示方式
-    c.SchemaFilter<RemoveCreatedAtPropertySchemaFilter>();
+
 
     //// 启用 XML 注释，并指定 XML 文件的路径
     //var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";

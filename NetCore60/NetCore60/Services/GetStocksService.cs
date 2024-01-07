@@ -201,9 +201,18 @@ public class GetStocksService
     {
         try
         {
-            //String interpolation using $
-            var currentDate = DateTime.Now.ToString("yyyyMMdd");
-            var apiUrl = $"https://wwwc.twse.com.tw/rwd/zh/fund/T86?date={currentDate}&selectType=ALL&response=json&_=1704631325883";
+            var _responseClosingDates = await getStockMarketOpeningAndClosingDates(false);
+
+            var currentDate = DateTime.Now;
+
+            // 循环递减日期，直到找到不是周六的日期
+            while (currentDate.DayOfWeek == DayOfWeek.Saturday || currentDate.DayOfWeek == DayOfWeek.Sunday)
+            {
+                currentDate = currentDate.AddDays(-1);
+            }
+            var _yyyyMMdd = currentDate.ToString("yyyyMMdd");
+
+            var apiUrl = $"https://wwwc.twse.com.tw/rwd/zh/fund/T86?date={_yyyyMMdd}&selectType=ALL&response=json&_=1704631325883";
 
 
             var request = new HttpRequestMessage(HttpMethod.Get, apiUrl);
