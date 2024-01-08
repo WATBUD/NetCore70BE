@@ -272,17 +272,30 @@ public class GetStocksService
     {
         try
         {
-            var _responseClosingDates = await getStockMarketOpeningAndClosingDates(false);
+            string _responseClosingDates = await getStockMarketOpeningAndClosingDates(false);
+            JArray jsonArray = JArray.Parse(_responseClosingDates);
+            // 转换为DateTime对象的列表
+            List<DateTime> dates = jsonArray.Select(dateString => DateTime.Parse(dateString.ToString())).ToList();
 
+            //if (dates.Contains(now))
+            //{
+            //    Console.WriteLine("DateTime.Now 在列表中.");
+            //}
+            //else
+            //{
+            //    Console.WriteLine("DateTime.Now 不在列表中.");
+            //}
             var currentDate = DateTime.Now;
             if (currentDate.Hour < 20)
             {
                 currentDate = currentDate.AddDays(-1);
             }
             // 循环递减日期，直到找到不是周六的日期
-            while (currentDate.DayOfWeek == DayOfWeek.Saturday || currentDate.DayOfWeek == DayOfWeek.Sunday)
+            while (currentDate.DayOfWeek == DayOfWeek.Saturday || currentDate.DayOfWeek == DayOfWeek.Sunday || dates.Contains(currentDate.Date))
             {
+
                 currentDate = currentDate.AddDays(-1);
+
             }
             var _yyyyMMdd = currentDate.ToString("yyyyMMdd");
             return _yyyyMMdd; // 或者返回錯誤信息，取決於您的需求
