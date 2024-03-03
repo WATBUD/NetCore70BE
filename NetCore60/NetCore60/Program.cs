@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using NetCore60.Controllers;
 using NetCore60.Models;
@@ -123,30 +125,30 @@ builder.Services.AddControllers()
 // ...
 //builder.Services.AddSwaggerGen();
 //配置第一个控制器的 Swagger
-//builder.Services.AddSwaggerGen(c =>
+//builder.Services.AddSwaggerGen(options =>
 //{
-//    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Test API", Version = "v1" });
-//    c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "TestAPI.xml")); // XML 注释文件路径
+//    options.SwaggerDoc("v1", new OpenApiInfo { Title = "Test API", Version = "v1" });
+//    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "TestAPI.xml")); // XML 注释文件路径
 
-//    c.DocumentFilter<ControllerNameFilter>(new[] { "User" });
+//    options.DocumentFilter<ControllerNameFilter>(new[] { "User" });
 
 //});
-builder.Services.AddSwaggerGen(c =>
+builder.Services.AddSwaggerGen(options =>
 {
     //產生Swagger json
-    c.SwaggerDoc("G_Test", new OpenApiInfo { Title = "TestAPI V1", Version = "1.0" });
-    c.SwaggerDoc("G_User", new OpenApiInfo { Title = "Users API", Version = "1.0" });
-    c.SwaggerDoc("G_Stocks", new OpenApiInfo { Title = "StockInformation API", Version = "2.0" });
-    c.SwaggerDoc("SwaggerGroupGuitarTutorial", new OpenApiInfo { Title = "GuitarTutorialAPI", Version = "1.0" });
+    options.SwaggerDoc("G_Test", new OpenApiInfo { Title = "TestAPI V1", Version = "1.0" });
+    options.SwaggerDoc("G_User", new OpenApiInfo { Title = "Users API", Version = "1.0" });
+    options.SwaggerDoc("G_Stocks", new OpenApiInfo { Title = "StockInformation API", Version = "2.0" });
+    options.SwaggerDoc("SwaggerGroupGuitarTutorial", new OpenApiInfo { Title = "GuitarTutorialAPI", Version = "1.0" });
     // 配置 Swagger 需要的安全验证信息，例如 JWT Token
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'",
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.ApiKey
     });
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
         {
             {
                 new OpenApiSecurityScheme
@@ -160,22 +162,22 @@ builder.Services.AddSwaggerGen(c =>
                 Array.Empty<string>()
             }
         });
-    c.DocumentFilter<DisableSchemaGenerationFilter>();
-    c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "NetCore60.xml")); // XML 注释文件路径
-    c.SchemaFilter<DateOnlySchemaFilter>(); // 自定义日期字段的显示方式
-    c.SchemaFilter<RemoveCreatedAtPropertySchemaFilter>();
+    options.DocumentFilter<DisableSchemaGenerationFilter>();
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "NetCore60.xml")); // XML 注释文件路径
+    options.SchemaFilter<DateOnlySchemaFilter>(); // 自定义日期字段的显示方式
+    options.SchemaFilter<RemoveCreatedAtPropertySchemaFilter>();
 
     // Get and display Swashbuckle version
     //var swaggerGenVersion = typeof(SwaggerGenerator).Assembly.GetName().Version;
     //Console.WriteLine($"Swashbuckle version: {swaggerGenVersion}");
-    //c.DocumentFilter<ControllerNameFilter>("User"); // 将控制器名称传递给过滤器
+    //options.DocumentFilter<ControllerNameFilter>("User"); // 将控制器名称传递给过滤器
 
 
 
     //// 启用 XML 注释，并指定 XML 文件的路径
     //var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     //var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-    //c.IncludeXmlComments(xmlPath);
+    //options.IncludeXmlComments(xmlPath);
 });
 var app = builder.Build();
 
@@ -190,12 +192,16 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/G_User/swagger.json", "UsersAPI");//http
-        //c.SwaggerEndpoint("/swagger/G_Test/swagger.json", "TestAPI");
+        //options.SwaggerEndpoint("/swagger/G_Test/swagger.json", "TestAPI");
         c.SwaggerEndpoint("/swagger/G_Stocks/swagger.json", "StockAPI");
         c.SwaggerEndpoint("/swagger/SwaggerGroupGuitarTutorial/swagger.json", "GuitarTutorialAPI");
         c.RoutePrefix = "api";
-
-        //c.RoutePrefix = "Test";
+        // 控制示例的最大显示大小
+        c.DefaultModelExpandDepth(2); // 设置展开的深度
+        c.DefaultModelRendering(ModelRendering.Model); // 使用 Model 渲染
+        c.DefaultModelsExpandDepth(-1); // 设置不展开所有模型
+        c.DisplayRequestDuration(); // 显示请求持续时间
+        //options.RoutePrefix = "Test";
 
     });
 }

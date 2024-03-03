@@ -20,30 +20,6 @@ public class GetStocksService
     }
 
 #pragma warning disable CS8603 // 可能有 Null 參考傳回
-    public async Task<string> GetNordVPNDataAsync(string ipAddress)
-    {
-        try
-        {
-            string apiUrl = $"https://nordvpn.com/wp-admin/admin-ajax.php?action=get_user_info_data&ip={ipAddress}";
-            HttpResponseMessage response = await _httpClient.GetAsync(apiUrl);
-            if (response.IsSuccessStatusCode)
-            {
-                string responseBody = await response.Content.ReadAsStringAsync();
-                return responseBody;
-            }
-            else
-            {
-                Console.WriteLine("HTTP请求失败，状态码：" + response.StatusCode);
-                //return null;
-                return "HTTP请求失败，状态码：";
-            }
-        }
-        catch (Exception ex)
-        {
-            //Console.WriteLine("发生异常：" + ex.Message);
-            return "发生异常：" + ex.Message;
-        }
-    }
 
     public async Task<string> getExDividendNoticeForm(int limitDays, bool isCashDividend = false)
     {
