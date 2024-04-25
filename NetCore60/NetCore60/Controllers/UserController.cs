@@ -82,15 +82,16 @@ namespace NetCore60.Controllers
                 return Ok(new { token });
             }
         }
-        ///// <summary> 
-        /////  GetJWTToken
-        ///// </summary>
-        //[HttpPost("GetJWTToken")]
-        //public IActionResult GetJWTToken()
-        //{
-        //    var token = JsonWebTokenService.GenerateJwtToken(10);
-        //    return Ok(new { token });
-        //}
+        /// <summary> 
+        ///  test_jwt_token
+        /// </summary>
+        [HttpPost("test_jwt_token")]
+        [Obsolete]
+        public IActionResult GetJWTToken()
+        {
+            var token = JsonWebTokenService.GenerateJwtToken(10);
+            return Ok(new { token });
+        }
 
         /// <summary> 
         ///  驗證Token
