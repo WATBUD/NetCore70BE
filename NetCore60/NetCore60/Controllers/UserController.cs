@@ -45,12 +45,12 @@ namespace NetCore60.Controllers
         /// <returns></returns> 
         [Authorize]
         [HttpGet("CheckUserBasicInformation")]
-        public IActionResult GetUserById()
+        public IActionResult checkUserBasicInformation()
         {
             string jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "", StringComparison.OrdinalIgnoreCase);
             int getUserIdFromToken = JsonWebTokenService.TryGetUserIdFromJwtToken(jwtToken);
 
-            var user = _databaseService.GetUserById(getUserIdFromToken);
+            var user = _databaseService.checkUserBasicInformation(getUserIdFromToken);
 
             if (user == null)
             {

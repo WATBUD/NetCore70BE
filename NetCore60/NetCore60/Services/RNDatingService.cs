@@ -65,7 +65,7 @@ namespace NetCore60.Services
 
         }
 
-        public Object? GetUserById(int id)
+        public Object? checkUserBasicInformation(int id)
         {
             // 查询数据库中的用户数据，然后将其映射为 UserDto 对象并返回
             using (var context = new RndatingDbContext(_connectionString))
