@@ -11,18 +11,6 @@ namespace TodoApi.Controllers
     [ApiExplorerSettings(GroupName = "G_Test")]
     public class TestController : ControllerBase
     {
-        //private readonly IDatabaseService _databaseService;
-
-        //public TestController(IDatabaseService databaseService)//Constructor
-        //{
-        //    _databaseService = databaseService;
-        //}
-        //[HttpGet("testconnection")]
-        //public ActionResult<string> TestConnection()
-        //{
-        //    string connectionStatus = _databaseService.Connect();
-        //    return connectionStatus;
-        //}
         private readonly RNDatingService _databaseService;
 
         public TestController(RNDatingService databaseService) // Constructor

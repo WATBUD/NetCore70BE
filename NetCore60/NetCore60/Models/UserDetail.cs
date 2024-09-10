@@ -31,5 +31,7 @@ public partial class UserDetail
 
     public bool? IsBanned { get; set; }
 
+    public string? Avatar { get; set; }
+
     public virtual User UdUser { get; set; } = null!;
 }

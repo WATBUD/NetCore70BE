@@ -14,4 +14,6 @@ public partial class RequestLog
     public string ClientIp { get; set; } = null!;
 
     public DateTime CreatedAt { get; set; }
+
+    public string BackendLanguage { get; set; } = null!;
 }

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using NetCore60.Models;
 using System;
 using System.Linq;
@@ -9,57 +9,58 @@ using System.Threading.Tasks;
 public class RequestLoggingMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly string? _connectionString;
-    public RequestLoggingMiddleware(RequestDelegate next, IConfiguration configuration)
+    private readonly IServiceScopeFactory _serviceScopeFactory;
+
+    public RequestLoggingMiddleware(RequestDelegate next, IServiceScopeFactory serviceScopeFactory)
     {
         _next = next;
-        _connectionString = configuration.GetConnectionString("RNDatingDBConnection");
-
+        _serviceScopeFactory = serviceScopeFactory;
     }
 
-    public async Task InvokeAsync(HttpContext _HttpContext)
+    public async Task InvokeAsync(HttpContext httpContext)
     {
-        using (var context = new RndatingDbContext(_connectionString)) 
-        { 
+        try
+        {
+            string[] targetPaths = { "/api/index.html", "/swagger/G_User/swagger.json" };
 
-            try
+            if (targetPaths.Any(path => httpContext.Request.Path.ToString().Contains(path)))
             {
-                string[] targetPaths = { "/api/index.html", "/swagger/G_User/swagger.json" };
+                await _next(httpContext);
+                return;
+            }
 
-                if (targetPaths.Any(path => _HttpContext.Request.Path.ToString().Contains(path)))
-                {
-                    await _next(_HttpContext);
-                    return;
-                }
+            using (var scope = _serviceScopeFactory.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<RndatingDbContext>();
+
                 var requestLog = new RequestLog()
                 {
-                    Path = _HttpContext.Request.Path,
-                    Method = _HttpContext.Request.Method,
-                    ClientIp = _HttpContext.Connection.RemoteIpAddress?.ToString() ?? "",
-                    CreatedAt = DateTime.UtcNow
+                    Path = httpContext.Request.Path,
+                    Method = httpContext.Request.Method,
+                    ClientIp = httpContext.Connection.RemoteIpAddress?.ToString() ?? "",
+                    CreatedAt = DateTime.UtcNow,
+                    BackendLanguage = "C#"
                 };
 
-                // 将 requestLog 添加到 context.RequestLogs 中
                 context.RequestLogs.Add(requestLog);
 
-                // 保存更改到数据库
                 await context.SaveChangesAsync();
             }
-            catch (Exception ex)
+        }
+        catch (Exception ex)
+        {
+            using (var scope = _serviceScopeFactory.CreateScope())
             {
-                var test = new RndatingDbContext(_connectionString);
-                var sqlExceptionMessage = "" + ex.InnerException?.Message;
-                // 将异常消息保存到 RecordLogTable 中
-                test.RecordLogTables.Add(new RecordLogTable { DataText = sqlExceptionMessage });
-                // 保存更改到数据库
-                test.SaveChanges();
-                Console.WriteLine("Error: " + sqlExceptionMessage); // 打印错误消息
-                // 将异常重新抛出，继续传播异常
-                throw;
+                var context = scope.ServiceProvider.GetRequiredService<RndatingDbContext>();
+                var sqlExceptionMessage = ex.InnerException?.Message ?? ex.Message;
+                context.RecordLogTables.Add(new RecordLogTable { DataText = sqlExceptionMessage });
+                context.SaveChanges();
             }
 
-            // 继续处理请求
-            await _next(_HttpContext);
+            Console.WriteLine("Error: " + ex.Message);
+            throw;
         }
+
+        await _next(httpContext);
     }
 }

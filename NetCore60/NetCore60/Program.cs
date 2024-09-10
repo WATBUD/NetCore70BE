@@ -21,15 +21,13 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
-//// 增加请求体大小限制
-//builder.WebHost.ConfigureKestrel(serverOptions =>
-//{
-//    serverOptions.Limits.MaxRequestBodySize = 500 * 1024 * 1024; // 设置新的MaxRequestBodySize
-//});
-//builder.Services.Configure<IISServerOptions>(serverOptions =>
-//{
-//    serverOptions.MaxRequestBodySize = 500 * 1024 * 1024; // 设置新的MaxRequestBodySize
-//});
+var connectionString = builder.Configuration.GetConnectionString("RNDatingDBConnection");
+builder.Services.AddDbContext<RndatingDbContext>(options =>
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+
+builder.Services.AddScoped<RNDatingService>();
+
+
 
 builder.Services.Configure<FormOptions>(options =>
 {
@@ -47,8 +45,7 @@ builder.Services.Configure<FormOptions>(options =>
 
 //Console.WriteLine(secretKey);
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
     {
         //options.SaveToken = false;
         //options.RequireHttpsMetadata = false;
@@ -66,13 +63,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             OnTokenValidated = TokenStore.ValidateToken
         };
     });
-
-
-
-
-// 添加配置文件（appsettings.json）作为配置源
-//builder.Configuration.AddJsonFile("appsettings.json");
-
 
 
 // 允许跨域请求，包括本地主机
@@ -102,10 +92,6 @@ builder.Services.AddCors(options =>
     });
 });
 
-
-// 注册自定义中间件
-//builder.Services.AddScoped<IDatabaseService, RNDatingService>();// 注册你的服务
-builder.Services.AddScoped<RNDatingService>(); // 替换为你的服务类的名称
 
 // 添加OnlineUsersService作为服务
 builder.Services.AddSingleton<OnlineUsersService>();
@@ -183,7 +169,6 @@ var app = builder.Build();
 
 
 app.UseMiddleware<RequestLoggingMiddleware>();
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseMiddleware<SwaggerUIMiddleware>();
@@ -205,7 +190,6 @@ if (app.Environment.IsDevelopment())
 
     });
 }
-// 启用CORS中间件
 app.UseCors("AllowFrontend");
 //app.MapGet("/", () => "DB不存在!");
 
@@ -225,56 +209,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-
-////// 启用文件上传路由
-//app.Map("/api", app =>
-//{
-//    app.UseEndpoints(endpoints =>
-//    {
-//        endpoints.MapGet("/", async context =>
-//        {
-//            await context.Response.WriteAsync("Hello, JWT API!");
-//        }).RequireAuthorization(); // 需要身份验证
-//    });
-//});
-
-//app.MapGet("/api/online-users", (OnlineUsersService onlineUsersService) =>
-//{
-//    int count = onlineUsersService.GetOnlineUserCount();
-//    return new { Count = count };
-//});
-//app.Use(async (context, next) =>
-//{
-//    try
-//    {
-//        await next(); // 执行下一个中间件或请求处理程序
-//    }
-//    catch (Exception ex)
-//    {
-//        context.Response.StatusCode = 500; // 设置适当的状态码
-//        await context.Response.WriteAsync(ex.Message);
-//    }
-//});
-
-
-
-//app.MapPost("/upload-file",async (HttpContext context) =>
-//{
-//    context.Request.EnableBuffering();
-//    try
-//    {
-//        var file = context.Request.Form.Files.FirstOrDefault();
-//        // 在这里执行文件上传逻辑
-//        await context.Response.WriteAsync("File uploaded successfully");
-//    }
-//    catch (Exception ex)
-//    {
-//        context.Response.StatusCode = 500; // 设置适当的状态码
-//        await context.Response.WriteAsync(ex.Message);
-//        // 在异常处理之后，不再返回响应，而是抛出异常以被上面的中间件捕获
-//        //throw;
-//    }
-//});
 
 
 app.Run();

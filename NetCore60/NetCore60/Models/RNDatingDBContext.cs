@@ -6,17 +6,13 @@ namespace NetCore60.Models;
 
 public partial class RndatingDbContext : DbContext
 {
-    private readonly string _connectionString="";
-
-    public RndatingDbContext(string? connectionString)
+    public RndatingDbContext()
     {
-        if(connectionString!=null) _connectionString = connectionString;
     }
 
-    public RndatingDbContext(DbContextOptions<RndatingDbContext> options, string connectionString)
+    public RndatingDbContext(DbContextOptions<RndatingDbContext> options)
         : base(options)
     {
-        if (connectionString != null) _connectionString = connectionString;
     }
 
     public virtual DbSet<AllTag> AllTags { get; set; }
@@ -25,23 +21,31 @@ public partial class RndatingDbContext : DbContext
 
     public virtual DbSet<ChatMessage> ChatMessages { get; set; }
 
+    public virtual DbSet<Permission> Permissions { get; set; }
+
+    public virtual DbSet<PrismaMigration> PrismaMigrations { get; set; }
+
     public virtual DbSet<RecordLogTable> RecordLogTables { get; set; }
 
     public virtual DbSet<RequestLog> RequestLogs { get; set; }
+
+    public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
 
     public virtual DbSet<UserDetail> UserDetails { get; set; }
 
+    public virtual DbSet<UserStock> UserStocks { get; set; }
+
     public virtual DbSet<VTagGroupDetail> VTagGroupDetails { get; set; }
+
+    public virtual DbSet<VUserRolePermission> VUserRolePermissions { get; set; }
 
     public virtual DbSet<VUsersDetail> VUsersDetails { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.UseMySql(_connectionString, Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.1.0-mysql"));
-    }
-
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseMySql("server=127.0.0.1;database=RNDatingDB;user=louis;password=123456", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.1.0-mysql"));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -98,6 +102,51 @@ public partial class RndatingDbContext : DbContext
                 .HasColumnName("time_stamp");
         });
 
+        modelBuilder.Entity<Permission>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("permissions");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.PermissionName)
+                .HasMaxLength(50)
+                .HasColumnName("permission_name");
+        });
+
+        modelBuilder.Entity<PrismaMigration>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity
+                .ToTable("_prisma_migrations")
+                .UseCollation("utf8mb4_unicode_ci");
+
+            entity.Property(e => e.Id)
+                .HasMaxLength(36)
+                .HasColumnName("id");
+            entity.Property(e => e.AppliedStepsCount).HasColumnName("applied_steps_count");
+            entity.Property(e => e.Checksum)
+                .HasMaxLength(64)
+                .HasColumnName("checksum");
+            entity.Property(e => e.FinishedAt)
+                .HasColumnType("datetime(3)")
+                .HasColumnName("finished_at");
+            entity.Property(e => e.Logs)
+                .HasColumnType("text")
+                .HasColumnName("logs");
+            entity.Property(e => e.MigrationName)
+                .HasMaxLength(255)
+                .HasColumnName("migration_name");
+            entity.Property(e => e.RolledBackAt)
+                .HasColumnType("datetime(3)")
+                .HasColumnName("rolled_back_at");
+            entity.Property(e => e.StartedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP(3)")
+                .HasColumnType("datetime(3)")
+                .HasColumnName("started_at");
+        });
+
         modelBuilder.Entity<RecordLogTable>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
@@ -120,6 +169,9 @@ public partial class RndatingDbContext : DbContext
 
             entity.ToTable("request_logs");
 
+            entity.Property(e => e.BackendLanguage)
+                .HasMaxLength(50)
+                .HasColumnName("backend_language");
             entity.Property(e => e.ClientIp)
                 .HasMaxLength(45)
                 .HasColumnName("client_ip");
@@ -132,6 +184,40 @@ public partial class RndatingDbContext : DbContext
             entity.Property(e => e.Path)
                 .HasMaxLength(255)
                 .HasColumnName("path");
+        });
+
+        modelBuilder.Entity<Role>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("roles");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.RoleName)
+                .HasMaxLength(50)
+                .HasColumnName("role_name");
+
+            entity.HasMany(d => d.Permissions).WithMany(p => p.Roles)
+                .UsingEntity<Dictionary<string, object>>(
+                    "RolePermission",
+                    r => r.HasOne<Permission>().WithMany()
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("role_permissions_ibfk_2"),
+                    l => l.HasOne<Role>().WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("role_permissions_ibfk_1"),
+                    j =>
+                    {
+                        j.HasKey("RoleId", "PermissionId")
+                            .HasName("PRIMARY")
+                            .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0 });
+                        j.ToTable("role_permissions");
+                        j.HasIndex(new[] { "PermissionId" }, "permission_id");
+                        j.IndexerProperty<int>("RoleId").HasColumnName("role_id");
+                        j.IndexerProperty<int>("PermissionId").HasColumnName("permission_id");
+                    });
         });
 
         modelBuilder.Entity<User>(entity =>
@@ -164,6 +250,28 @@ public partial class RndatingDbContext : DbContext
             entity.Property(e => e.Username)
                 .HasMaxLength(50)
                 .HasColumnName("username");
+
+            entity.HasMany(d => d.Roles).WithMany(p => p.Users)
+                .UsingEntity<Dictionary<string, object>>(
+                    "UserRole",
+                    r => r.HasOne<Role>().WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("user_roles_ibfk_2"),
+                    l => l.HasOne<User>().WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("user_roles_ibfk_1"),
+                    j =>
+                    {
+                        j.HasKey("UserId", "RoleId")
+                            .HasName("PRIMARY")
+                            .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0 });
+                        j.ToTable("user_roles");
+                        j.HasIndex(new[] { "RoleId" }, "role_id");
+                        j.IndexerProperty<int>("UserId").HasColumnName("user_id");
+                        j.IndexerProperty<int>("RoleId").HasColumnName("role_id");
+                    });
         });
 
         modelBuilder.Entity<UserDetail>(entity =>
@@ -175,6 +283,9 @@ public partial class RndatingDbContext : DbContext
             entity.Property(e => e.UdUserId)
                 .ValueGeneratedOnAdd()
                 .HasColumnName("ud_user_id");
+            entity.Property(e => e.Avatar)
+                .HasMaxLength(255)
+                .HasColumnName("avatar");
             entity.Property(e => e.Birthday).HasColumnName("birthday");
             entity.Property(e => e.Gender)
                 .HasMaxLength(10)
@@ -216,6 +327,34 @@ public partial class RndatingDbContext : DbContext
                 .HasConstraintName("fk_userdetail_user");
         });
 
+        modelBuilder.Entity<UserStock>(entity =>
+        {
+            entity.HasKey(e => e.Index).HasName("PRIMARY");
+
+            entity.ToTable("user_stock");
+
+            entity.HasIndex(e => new { e.StockId, e.UserId }, "user_stock_key").IsUnique();
+
+            entity.Property(e => e.Index).HasColumnName("index");
+            entity.Property(e => e.IsBlocked)
+                .HasDefaultValueSql("'0'")
+                .HasColumnName("is_blocked");
+            entity.Property(e => e.Note)
+                .HasMaxLength(16)
+                .HasColumnName("note");
+            entity.Property(e => e.StockId)
+                .HasMaxLength(6)
+                .HasColumnName("stock_id");
+            entity.Property(e => e.UpdatedAt)
+                .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp")
+                .HasColumnName("updated_at");
+            entity.Property(e => e.UserId)
+                .HasMaxLength(16)
+                .HasColumnName("user_id");
+        });
+
         modelBuilder.Entity<VTagGroupDetail>(entity =>
         {
             entity
@@ -233,6 +372,26 @@ public partial class RndatingDbContext : DbContext
                 .HasMaxLength(40)
                 .HasDefaultValueSql("'empty'")
                 .HasColumnName("tag_Name");
+        });
+
+        modelBuilder.Entity<VUserRolePermission>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("v_user_role_permissions");
+
+            entity.Property(e => e.PermissionId).HasColumnName("permission_id");
+            entity.Property(e => e.PermissionName)
+                .HasMaxLength(50)
+                .HasColumnName("permission_name");
+            entity.Property(e => e.RoleId).HasColumnName("role_id");
+            entity.Property(e => e.RoleName)
+                .HasMaxLength(50)
+                .HasColumnName("role_name");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+            entity.Property(e => e.Username)
+                .HasMaxLength(50)
+                .HasColumnName("username");
         });
 
         modelBuilder.Entity<VUsersDetail>(entity =>
