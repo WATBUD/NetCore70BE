@@ -179,9 +179,9 @@ namespace NetCore60.Services
 
         public string InsertUserAccount(string _account, string password, string _email)
         {
-            int generatedId; // 获取自动生成的 ID
+            int generatedId;
 
-                if (string.IsNullOrEmpty(_account))// 字符串为空或 null
+                if (string.IsNullOrEmpty(_account))
                 {
 
                     return "帳號为空或 null";
@@ -192,16 +192,16 @@ namespace NetCore60.Services
                     var newItem = new User { Account = _account, Password = password, Username = "新使用者", Email = _email };
                     _dbContext.Users.Add(newItem);
                     _dbContext.SaveChanges();
-                    generatedId = newItem.UserId; // 获取自动生成的 ID
+                    generatedId = newItem.UserId; 
                 }
                 catch (Exception ex)
                 {
                     var sqlExceptionMessage = "" + ex.InnerException?.Message;
-                    _dbContext.RecordLogTables.Add(new RecordLogTable { DataText = sqlExceptionMessage });
-                    _dbContext.SaveChanges();
-                    Console.WriteLine("Error: " + sqlExceptionMessage); // 打印错误消息
+                    //_dbContext.RecordLogTables.Add(new RecordLogTable { DataText = sqlExceptionMessage });
+                    //_dbContext.SaveChanges();
+                    Console.WriteLine("Error: " + sqlExceptionMessage);
                     return sqlExceptionMessage;
-                    throw; // 将异常重新抛出，继续传播异常
+                    //throw; 
                 }
 
                 // Read
