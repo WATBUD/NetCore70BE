@@ -302,8 +302,6 @@ public class GetStocksService
                 if (originalResult.Count > 0 && !requestAllData)
                 {
                     var dates = originalResult.Select(item => item[0].ToString()).ToArray();
-                    // 'dates' 现在包含了所有的日期值
-                    // 这里可以根据需要处理 'dates'
                     string jsonResult = JsonConvert.SerializeObject(dates);
 
                     return jsonResult;

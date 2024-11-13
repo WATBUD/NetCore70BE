@@ -13,6 +13,7 @@ using System.Text.Json;
 using Newtonsoft.Json.Linq;
 using System.Numerics;
 using Microsoft.AspNetCore.Authorization;
+using NetCore60.Utilities;
 
 namespace NetCore60.Controllers
 {
@@ -48,7 +49,7 @@ namespace NetCore60.Controllers
         public IActionResult checkUserBasicInformation()
         {
             string jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "", StringComparison.OrdinalIgnoreCase);
-            int getUserIdFromToken = JsonWebTokenService.TryGetUserIdFromJwtToken(jwtToken);
+            int getUserIdFromToken = JsonWebToken.TryGetUserIdFromJwtToken(jwtToken);
 
             var user = _databaseService.checkUserBasicInformation(getUserIdFromToken);
 
@@ -78,7 +79,7 @@ namespace NetCore60.Controllers
                 
             }
             else{
-                var token = JsonWebTokenService.GenerateJwtToken(user);
+                var token = JsonWebToken.GenerateJwtToken(user);
                 return Ok(new { token });
             }
         }
@@ -89,7 +90,7 @@ namespace NetCore60.Controllers
         [Obsolete]
         public IActionResult GetJWTToken()
         {
-            var token = JsonWebTokenService.GenerateJwtToken(10);
+            var token = JsonWebToken.GenerateJwtToken(10);
             return Ok(new { token });
         }
 
@@ -195,7 +196,7 @@ namespace NetCore60.Controllers
         [HttpPost("UploadImageFileToServer")]
         public IActionResult UploadImageFileToServer(IFormFile file)
         {
-            string resultMessage= SystemService.UploadImageFileToServer(file);
+            string resultMessage= FileHelper.UploadImageFileToServer(file);
             return Ok(resultMessage);
         }
 

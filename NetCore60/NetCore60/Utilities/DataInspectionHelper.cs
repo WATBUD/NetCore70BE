@@ -2,12 +2,12 @@
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
-namespace NetCore60.Services
+namespace NetCore60.Utilities
 {
 
-    public static class DataInspectionAndProcessingService
+    public static class DataInspectionHelper
     {
-        public static bool IsValidEmail(string ?email)
+        public static bool IsValidEmail(string? email)
         {
             if (string.IsNullOrEmpty(email))
             {
@@ -15,13 +15,11 @@ namespace NetCore60.Services
             }
             // 电子邮件地址的正则表达式模式
             string pattern = @"^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$";
-            // 使用正则表达式进行匹配
             Match match = Regex.Match(email, pattern);
             return match.Success && match.Value == email;
         }
         public static string ToPascalCase(string input)
         {
-            // 首先将字符串全部转换为小写
             string lowerCase = input.ToLower();
             // 将字符串分割成单词
             string[] words = lowerCase.Split(new[] { ' ', '_', '-' }, StringSplitOptions.RemoveEmptyEntries);
@@ -52,8 +50,6 @@ namespace NetCore60.Services
 
                 return age >= ageThreshold;
             }
-
-            // 如果生日为空，返回 false 或者根据需要进行其他处理
             return false;
         }
 

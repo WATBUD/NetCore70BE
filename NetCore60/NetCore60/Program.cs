@@ -12,6 +12,7 @@ using NetCore60.Controllers;
 using NetCore60.Models;
 using NetCore60.Services;
 using NetCore60.Swagger;
+using NetCore60.Utilities;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Swashbuckle.AspNetCore.SwaggerUI;
 using System;
@@ -55,7 +56,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
             ValidateAudience = false,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JsonWebTokenService.baseSecretKey)),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(NetCore60.Utilities.JsonWebToken.baseSecretKey)),
 
         };
         options.Events = new JwtBearerEvents
@@ -65,36 +66,29 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     });
 
 
-// 允许跨域请求，包括本地主机
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend", builder =>
-    {
-        //builder.WithOrigins("http://localhost")
-        //       .AllowAnyHeader()
-        //       .AllowAnyMethod();
-        // builder.WithOrigins("http://localhost:7129")
-        //.AllowAnyHeader()
-        //.AllowAnyMethod();
-        //builder
-        //     .AllowAnyOrigin()
-        //     .AllowAnyHeader()
-        //     .AllowAnyMethod()
-        //     .WithExposedHeaders("Content-Disposition");
+    options.AddPolicy("AllowAll",
+                    builder =>
+                    {
+                        builder
+                        .AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
+                    });
+    //options.AddPolicy("AllowLocalhost", builder =>
+    //{
+    //    builder.SetIsOriginAllowed(Origin =>
+    //    {
+    //        string host = new Uri(Origin).Host;
 
-        builder.SetIsOriginAllowed(Origin =>
-        {
-            string host = new Uri(Origin).Host;
-
-            //Console.WriteLine("Origin Host: " + host);
-            return host == "localhost";
-        });
-    });
+    //        //Console.WriteLine("Origin Host: " + host);
+    //        return host == "localhost";
+    //    });
+    //});
 });
 
 
-// 添加OnlineUsersService作为服务
-builder.Services.AddSingleton<OnlineUsersService>();
 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

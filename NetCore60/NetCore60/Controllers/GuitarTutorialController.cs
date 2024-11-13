@@ -14,10 +14,6 @@ namespace TodoApi.Controllers
     {
         private readonly RNDatingService _databaseService;
 
-        private readonly GuitarTutorialService _guitarTutorialService = new GuitarTutorialService();
-
-
-
         public GuitarTutorialController(RNDatingService databaseService) // Constructor
         {
             _databaseService = databaseService;

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using MySqlConnector;
 using NetCore60.Models;
+using NetCore60.Utilities;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -97,7 +98,7 @@ namespace NetCore60.Services
                             if (propertyInfo.Name == "Birthday")
                             {
                                 DateTime dateTime = (DateTime)newValue;
-                                if (DataInspectionAndProcessingService.IsAgeAboveThreshold(dateTime, 20))
+                                if (DataInspectionHelper.IsAgeAboveThreshold(dateTime, 20))
                                 {
                                     return "年齡現代差距過大過大,請輸入正確年齡";
                                 }
@@ -109,7 +110,7 @@ namespace NetCore60.Services
                             }
                             else if (propertyInfo.Name == "ProfilePicture")
                             {
-                                string newFileName = SystemService.UploadImageFileToServer((IFormFile)newValue, true);
+                                string newFileName = FileHelper.UploadImageFileToServer((IFormFile)newValue, true);
                                 userDetailEntity.ProfilePicture = newFileName;
                             }
                             else if (propertyInfo.Name != "UdUserId")

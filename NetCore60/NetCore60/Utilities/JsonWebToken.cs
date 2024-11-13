@@ -9,10 +9,10 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
-namespace NetCore60.Services
+namespace NetCore60.Utilities
 {
 
-    public static class JsonWebTokenService
+    public static class JsonWebToken
     {
         public static string baseSecretKey = "es+E1CdOQA5jRehCOM04qylj2blOd1edxYZmaCGt0co=";
 
@@ -23,28 +23,6 @@ namespace NetCore60.Services
             RandomNumberGenerator.Fill(keyBytes);
             return Convert.ToBase64String(keyBytes);
         }
-        //public static string GenerateJwtToken(string username, int expirationMinutes = 60)
-        //{
-        //    var tokenHandler = new JwtSecurityTokenHandler();
-        //    var key = Encoding.UTF8.GetBytes(baseSecretKey);
-
-        //    var claims = new ClaimsIdentity(new[]
-        //    {
-        //    new Claim(ClaimTypes.Name, username)
-        //});
-
-        //    var tokenDescriptor = new SecurityTokenDescriptor
-        //    {
-        //        Subject = claims,
-        //        Expires = DateTime.UtcNow.AddMinutes(expirationMinutes),
-        //        Issuer ="Net60Server",
-        //        Audience = "RNDatingApp",
-        //        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-        //    };
-
-        //    var token = tokenHandler.CreateToken(tokenDescriptor);
-        //    return tokenHandler.WriteToken(token);
-        //}
         public static string GenerateJwtToken(int userId, int expirationMinutes = 120)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
