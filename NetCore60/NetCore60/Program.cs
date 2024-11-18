@@ -21,14 +21,18 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+
+
+
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = builder.Configuration.GetConnectionString("RNDatingDBConnection");
-builder.Services.AddDbContext<RndatingDbContext>(options =>
+var connectionString = builder.Configuration.GetConnectionString("Database:ConnectionString");
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
 builder.Services.AddScoped<RNDatingService>();
 
-
+builder.Services.AddScoped<UsersService>();
 
 builder.Services.Configure<FormOptions>(options =>
 {

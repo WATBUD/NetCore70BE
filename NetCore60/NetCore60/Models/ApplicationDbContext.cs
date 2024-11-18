@@ -4,13 +4,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace NetCore60.Models;
 
-public partial class RndatingDbContext : DbContext
+public partial class ApplicationDbContext : DbContext
 {
-    public RndatingDbContext()
+    public ApplicationDbContext()
     {
     }
 
-    public RndatingDbContext(DbContextOptions<RndatingDbContext> options)
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {
     }

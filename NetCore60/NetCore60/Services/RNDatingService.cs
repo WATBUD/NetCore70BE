@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using MySqlConnector;
+using NetCore60.DTO;
 using NetCore60.Models;
 using NetCore60.Utilities;
 using Newtonsoft.Json.Linq;
@@ -18,9 +19,9 @@ namespace NetCore60.Services
 {
     public class RNDatingService
     {
-        private readonly RndatingDbContext _dbContext;
+        private readonly ApplicationDbContext _dbContext;
 
-        public RNDatingService(RndatingDbContext dbContext)
+        public RNDatingService(ApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -62,17 +63,6 @@ namespace NetCore60.Services
             }
         }
 
-
-        public int GetLoginUserId(LoginFormModel loginData)
-        {
-            var userEntity = _dbContext.Users.FirstOrDefault(u => u.Account == loginData.Account && u.Password == loginData.Password);
-
-            if (userEntity != null)
-            {
-                return userEntity.UserId;
-            }
-            return -1;
-        }
 
 
         public List<RequestLog> GetRequestLogs()

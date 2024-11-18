@@ -29,4 +29,8 @@
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.5.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DTO\DTO\" />
+  </ItemGroup>
+
 </Project>

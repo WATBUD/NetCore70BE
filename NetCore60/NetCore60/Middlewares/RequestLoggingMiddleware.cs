@@ -31,7 +31,7 @@ public class RequestLoggingMiddleware
 
             using (var scope = _serviceScopeFactory.CreateScope())
             {
-                var context = scope.ServiceProvider.GetRequiredService<RndatingDbContext>();
+                var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
                 var requestLog = new RequestLog()
                 {
@@ -51,7 +51,7 @@ public class RequestLoggingMiddleware
         {
             using (var scope = _serviceScopeFactory.CreateScope())
             {
-                var context = scope.ServiceProvider.GetRequiredService<RndatingDbContext>();
+                var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 var sqlExceptionMessage = ex.InnerException?.Message ?? ex.Message;
                 context.RecordLogTables.Add(new RecordLogTable { DataText = sqlExceptionMessage });
                 context.SaveChanges();

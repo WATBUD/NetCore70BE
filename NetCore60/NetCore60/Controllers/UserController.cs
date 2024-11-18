@@ -14,6 +14,7 @@ using Newtonsoft.Json.Linq;
 using System.Numerics;
 using Microsoft.AspNetCore.Authorization;
 using NetCore60.Utilities;
+using NetCore60.DTO;
 
 namespace NetCore60.Controllers
 {
@@ -62,27 +63,27 @@ namespace NetCore60.Controllers
             return Ok(user);
         }
 
-        /// <summary> 
-        ///  登入使用者帳號
-        /// </summary>
-        /// <param name="formModel"></param>
-        /// <returns></returns> 
-        /// <remarks>注意事項</remarks> 
-        /// 
-        [HttpPost("Login")]
-        public IActionResult Login([FromForm] LoginFormModel formModel)
-        {
-            int user = _databaseService.GetLoginUserId(formModel);
-            if (user == -1)
-            {
-                return Ok("Please check your username and password.");
+        ///// <summary> 
+        /////  登入使用者帳號
+        ///// </summary>
+        ///// <param name="formModel"></param>
+        ///// <returns></returns> 
+        ///// <remarks>注意事項</remarks> 
+        ///// 
+        //[HttpPost("Login")]
+        //public IActionResult Login([FromBody] UserDTO formModel)
+        //{
+        //    //int user = _databaseService.GetLoginUserId(formModel);
+        //    //if (user == -1)
+        //    //{
+        //    //    return Ok("Please check your username and password.");
                 
-            }
-            else{
-                var token = JsonWebToken.GenerateJwtToken(user);
-                return Ok(new { token });
-            }
-        }
+        //    //}
+        //    //else{
+        //    //    var token = JsonWebToken.GenerateJwtToken(user);
+        //    //    return Ok(new { token });
+        //    //}
+        //}
         /// <summary> 
         ///  test_jwt_token
         /// </summary>
