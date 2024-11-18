@@ -30,7 +30,40 @@ public class UsersService
         _configuration = configuration;
 
     }
+    public async Task<ResponseDTO> Login(LoginDTO model)
+    {
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.UserAccount == model.UserAccount);
 
+        if (user == null)
+        {
+            return ErrorResponse("Error", new { message = "User does not exist." });
+
+        }
+
+        var passwordHasher = new PasswordHasher<User>();
+        var result = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, model.Password);
+
+        if (result == PasswordVerificationResult.Failed)
+        {
+            return ErrorResponse("Error", new { message = "Incorrect password." });
+        }
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(new Claim[]
+            {
+            new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+            new Claim(ClaimTypes.Name, user.Username)
+            }),
+            Expires = DateTime.UtcNow.AddHours(1),
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["Jwt:Key"])), SecurityAlgorithms.HmacSha256Signature)
+        };
+
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        return SuccessResponse(new { Token = tokenHandler.WriteToken(token) });
+    }
 
 
 }

@@ -5,7 +5,9 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <GenerateDocumentationFile>true</GenerateDocumentationFile> <!--// 启用 XML 注释文件的生成。-->
-    <NoWarn>$(NoWarn);1591</NoWarn>
+    <DocumentationFile>bin\Debug\net6.0\NetCore60.xml</DocumentationFile>
+
+    <NoWarn>1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

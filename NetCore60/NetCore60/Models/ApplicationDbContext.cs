@@ -222,12 +222,9 @@ public partial class ApplicationDbContext : DbContext
 
             entity.ToTable("users");
 
-            entity.HasIndex(e => e.Account, "Account").IsUnique();
+            entity.HasIndex(e => e.UserAccount, "Account").IsUnique();
 
             entity.Property(e => e.UserId).HasColumnName("user_id");
-            entity.Property(e => e.Account)
-                .HasMaxLength(100)
-                .HasColumnName("account");
             entity.Property(e => e.Avatar)
                 .HasMaxLength(255)
                 .HasColumnName("avatar");
@@ -254,9 +251,9 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.LookingFor)
                 .HasColumnType("enum('Friendship','Dating','Long-term Relationship','Other')")
                 .HasColumnName("looking_for");
-            entity.Property(e => e.Password)
-                .HasMaxLength(100)
-                .HasColumnName("password");
+            entity.Property(e => e.PasswordHash)
+                .HasMaxLength(256)
+                .HasColumnName("password_hash");
             entity.Property(e => e.PersonalDescription)
                 .HasColumnType("text")
                 .HasColumnName("personal_description");
@@ -277,6 +274,9 @@ public partial class ApplicationDbContext : DbContext
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp")
                 .HasColumnName("updated_at");
+            entity.Property(e => e.UserAccount)
+                .HasMaxLength(100)
+                .HasColumnName("user_account");
             entity.Property(e => e.UserHasTag)
                 .HasColumnType("json")
                 .HasColumnName("user_has_tag");
@@ -359,22 +359,6 @@ public partial class ApplicationDbContext : DbContext
             entity
                 .HasNoKey()
                 .ToView("v_user_role_permissions");
-
-            entity.Property(e => e.Password)
-                .HasMaxLength(100)
-                .HasColumnName("password");
-            entity.Property(e => e.PermissionId).HasColumnName("permission_id");
-            entity.Property(e => e.PermissionName)
-                .HasMaxLength(50)
-                .HasColumnName("permission_name");
-            entity.Property(e => e.RoleId).HasColumnName("role_id");
-            entity.Property(e => e.RoleName)
-                .HasMaxLength(50)
-                .HasColumnName("role_name");
-            entity.Property(e => e.UserId).HasColumnName("user_id");
-            entity.Property(e => e.Username)
-                .HasMaxLength(50)
-                .HasColumnName("username");
         });
 
         OnModelCreatingPartial(modelBuilder);

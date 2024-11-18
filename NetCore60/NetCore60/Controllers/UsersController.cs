@@ -15,18 +15,25 @@ using System.Numerics;
 using Microsoft.AspNetCore.Authorization;
 using NetCore60.Utilities;
 using NetCore60.DTO;
-
+using System.Security.Claims;
+using static NetCore60.DTO.ResponseDTO;
+using Microsoft.EntityFrameworkCore;
 namespace NetCore60.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "G_User")]
-    public class UserController : ControllerBase
+    public class UsersController : ControllerBase
     {
+        private readonly ApplicationDbContext _context;
         private readonly RNDatingService _databaseService;
-        public UserController(RNDatingService databaseService) // Constructor
+        private readonly UsersService _usersService;
+
+        public UsersController(ApplicationDbContext context, RNDatingService databaseService, UsersService usersService) // Constructor
         {
             _databaseService = databaseService;
+            _usersService = usersService;
+            _context = context;
 
         }
         //ActionResult<User> Can generate schema UI
@@ -36,8 +43,8 @@ namespace NetCore60.Controllers
         [HttpPost("CreateUser")]
         public IActionResult Create([Required] string _account, [Required] string _password, [Required] string _email)
         {
-            string newUserId = _databaseService.InsertUserAccount(_account, _password, _email);
-            return Ok(newUserId);
+            //string newUserId = _databaseService.InsertUserAccount(_account, _password, _email);
+            return Ok("");
             //return CreatedAtAction(nameof(GetUserById), new { id = newUserId }, item);
         }
 
@@ -46,44 +53,43 @@ namespace NetCore60.Controllers
         /// </summary>
         /// <returns></returns> 
         [Authorize]
-        [HttpGet("CheckUserBasicInformation")]
-        public IActionResult checkUserBasicInformation()
+        [HttpGet("GetUserInfo")]
+        public async Task<ResponseDTO> GetUserInfo()
         {
-            string jwtToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "", StringComparison.OrdinalIgnoreCase);
-            int getUserIdFromToken = JsonWebToken.TryGetUserIdFromJwtToken(jwtToken);
+            string? userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var user = _databaseService.checkUserBasicInformation(getUserIdFromToken);
+            // Find the target user
+            var user = await _context.Users
+                .Where(u => u.UserId.ToString() == userId)
+                .FirstOrDefaultAsync();
 
             if (user == null)
             {
-                //return NotFound();
-                return Ok("用戶ID不存在");
+                // If user does not exist, return an error response
+                return ErrorResponse("Error", new { message = "User does not exist." });
             }
 
-            return Ok(user);
+
+            return SuccessResponse(new { UserInfo = user });
         }
 
+
+
+
         ///// <summary> 
-        /////  登入使用者帳號
+        ///// 登入使用者帳號
         ///// </summary>
-        ///// <param name="formModel"></param>
-        ///// <returns></returns> 
-        ///// <remarks>注意事項</remarks> 
-        ///// 
-        //[HttpPost("Login")]
-        //public IActionResult Login([FromBody] UserDTO formModel)
-        //{
-        //    //int user = _databaseService.GetLoginUserId(formModel);
-        //    //if (user == -1)
-        //    //{
-        //    //    return Ok("Please check your username and password.");
-                
-        //    //}
-        //    //else{
-        //    //    var token = JsonWebToken.GenerateJwtToken(user);
-        //    //    return Ok(new { token });
-        //    //}
-        //}
+        ///// <param name="model">用戶的登入信息</param>
+        ///// <returns>回應 DTO</returns> 
+        ///// <remarks>注意事項：此 API 用於登入，請確保傳入有效的帳號與密碼。</remarks> 
+        [HttpPost("login")]
+        public async Task<ResponseDTO> Login([FromBody] LoginDTO model)
+        {
+            return await _usersService.Login(model);
+        }
+
+
+
         /// <summary> 
         ///  test_jwt_token
         /// </summary>
@@ -115,23 +121,29 @@ namespace NetCore60.Controllers
         }
 
 
-        /// <summary> 
-        ///     更新使用者密碼
-        /// </summary>
-        [HttpPut("UpdateUserPassWord")]
-        public IActionResult UpdateUserPassWord([Required] int _user_id, [Required] string _password)
-        {
-            var user = _databaseService.UpdateUserPassword(_user_id, _password);
-            if (user == null)
-            {
-                //return NotFound();
-                return Ok("用戶ID不存在");
-            }
-            // 构建包含更新成功消息的 OkObjectResult
-            var successMessage = "密码更新成功";
-            var result = new OkObjectResult(new { Message = successMessage, Data = user });
-            return result;
-        }
+        //[Authorize]
+        //[HttpPut("ModifyPassword")]
+        //public async Task<ResponseDTO> ModifyPassword([FromBody] ChangePasswordDTO model)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        var errorMessages = ModelState.Values
+        //                                      .SelectMany(v => v.Errors)
+        //                                      .Select(e => e.ErrorMessage)
+        //                                      .ToList();
+        //        return ErrorResponse("Error", new { message = string.Join(", ", errorMessages) });
+        //    }
+        //    var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        //    if (int.TryParse(userId, out int parsedUserId))
+        //    {
+        //        model.UserId = parsedUserId;
+        //    }
+        //    else
+        //    {
+        //        return ErrorResponse("Error", new { message = "Invalid UserId." });
+        //    }
+        //    return await _usersService.ModifyPassword(model);
+        //}
 
         /// <summary>
         /// 上傳圖片到伺服器

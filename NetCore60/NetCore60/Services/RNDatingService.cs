@@ -30,37 +30,12 @@ namespace NetCore60.Services
         {
                 var userEntity = _dbContext.Users.Where(u => u.UserId == id).Select(data => new
                 {
-                    data.Account,
+                    data.UserAccount,
                     data.Username,
                     data.Email,
                     data.CreatedAt,
                 }).FirstOrDefault();
                 return userEntity; 
-        }
-
-        public User? UpdateUserPassword(int userId, string password)
-        {
-            using (var transaction = _dbContext.Database.BeginTransaction())
-            {
-                try
-                {
-                    var userEntity = _dbContext.Users.FirstOrDefault(u => u.UserId == userId);
-                    if (userEntity != null)
-                    {
-                        userEntity.Password = password;
-                        _dbContext.SaveChanges();
-                    }
-
-
-                    transaction.Commit();
-                    return userEntity;
-                }
-                catch (Exception)
-                {
-                    transaction.Rollback();
-                    return null;
-                }
-            }
         }
 
 
@@ -79,57 +54,6 @@ namespace NetCore60.Services
                 return userEntity;
             
         }
-
-        public string InsertUserAccount(string _account, string password, string _email)
-        {
-            int generatedId;
-
-                if (string.IsNullOrEmpty(_account))
-                {
-
-                    return "帳號为空或 null";
-                }
-                //Create
-                try
-                {
-                    var newItem = new User { Account = _account, Password = password, Username = "新使用者", Email = _email };
-                    _dbContext.Users.Add(newItem);
-                    _dbContext.SaveChanges();
-                    generatedId = newItem.UserId; 
-                }
-                catch (Exception ex)
-                {
-                    var sqlExceptionMessage = "" + ex.InnerException?.Message;
-                    //_dbContext.RecordLogTables.Add(new RecordLogTable { DataText = sqlExceptionMessage });
-                    //_dbContext.SaveChanges();
-                    Console.WriteLine("Error: " + sqlExceptionMessage);
-                    return sqlExceptionMessage;
-                    //throw; 
-                }
-
-                // Read
-                var items = _dbContext.Users.ToList();
-                foreach (var item in items)
-                {
-                    var str = item.UserId + " " + item.Username;
-                    try
-                    {
-                        _dbContext.RecordLogTables.Add(new RecordLogTable { DataText = str });
-                        _dbContext.SaveChanges();
-                        Console.WriteLine(item.UserId + " " + item.Username);
-                    }
-                    catch (Exception)
-                    {
-
-                        throw;
-                    }
-
-                }
-                return "Account successfully created => userID : " + generatedId.ToString(); //"Account successfully created";
-            
-
-        }
-
 
         public string testConnectionDatabase()
         {

@@ -7,10 +7,10 @@ namespace NetCore60.DTO
 {
     public class ResponseDTO
     {
-        public string Status { get; set; }
-        public object Result { get; set; }
+        public string? Status { get; set; }
+        public object? Result { get; set; }
         public bool Success { get; set; }
-        public static ResponseDTO SuccessResponse(object result = null)
+        public static ResponseDTO SuccessResponse(object? result = null)
         {
             return new ResponseDTO
             {
@@ -19,7 +19,7 @@ namespace NetCore60.DTO
                 Result = result
             };
         }
-        public static ResponseDTO ErrorResponse(string errorCode, object result = null)
+        public static ResponseDTO ErrorResponse(string errorCode, object? result = null)
         {
             return new ResponseDTO
             {

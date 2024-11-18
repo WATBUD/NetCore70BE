@@ -274,7 +274,7 @@ public class GetStocksService
 
             }
             var _yyyyMMdd = currentDate.ToString("yyyyMMdd");
-            return _yyyyMMdd; // 或者返回錯誤信息，取決於您的需求
+            return _yyyyMMdd; 
         }
         catch (Exception ex)
         {
@@ -317,12 +317,13 @@ public class GetStocksService
             }
             else
             {
-                return null; // 或者返回錯誤信息，取決於您的需求
+                return null; 
             }
         }
         catch (Exception ex)
         {
-            return null; // 或者返回錯誤信息，取決於您的需求
+            Console.WriteLine(ex.Message);
+            return null;
         }
     }
 
