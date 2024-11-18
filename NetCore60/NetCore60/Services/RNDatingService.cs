@@ -27,7 +27,7 @@ namespace NetCore60.Services
 
         public Object? checkUserBasicInformation(int id)
         {
-                var userEntity = _dbContext.VUsersDetails.Where(u => u.UserId == id).Select(data => new
+                var userEntity = _dbContext.Users.Where(u => u.UserId == id).Select(data => new
                 {
                     data.Account,
                     data.Username,
@@ -37,7 +37,7 @@ namespace NetCore60.Services
                 return userEntity; 
         }
 
-        public VUsersDetail? UpdateUserPassword(int userId, string password)
+        public User? UpdateUserPassword(int userId, string password)
         {
             using (var transaction = _dbContext.Database.BeginTransaction())
             {
@@ -50,10 +50,9 @@ namespace NetCore60.Services
                         _dbContext.SaveChanges();
                     }
 
-                    var returnEntity = _dbContext.VUsersDetails.FirstOrDefault(u => u.UserId == userId);
 
                     transaction.Commit();
-                    return returnEntity;
+                    return userEntity;
                 }
                 catch (Exception)
                 {
@@ -124,7 +123,7 @@ namespace NetCore60.Services
                 _dbContext.SaveChanges();
                 transaction.Commit();
 
-                var returnEntity = _dbContext.VUsersDetails.FirstOrDefault(u => u.UserId == _VUsersDetailDTO.UserId);
+                var returnEntity = _dbContext.Users.FirstOrDefault(u => u.UserId == _VUsersDetailDTO.UserId);
                 return returnEntity;
             }
             catch (Exception ex)
@@ -137,7 +136,7 @@ namespace NetCore60.Services
 
         public int GetLoginUserId(LoginFormModel loginData)
         {
-            var userEntity = _dbContext.VUsersDetails.FirstOrDefault(u => u.Account == loginData.Account && u.Password == loginData.Password);
+            var userEntity = _dbContext.Users.FirstOrDefault(u => u.Account == loginData.Account && u.Password == loginData.Password);
 
             if (userEntity != null)
             {
@@ -146,22 +145,6 @@ namespace NetCore60.Services
             return -1;
         }
 
-
-        public Object? GetUserDetail(int user_id)
-        {
-  
-                var userEntity = _dbContext.VUsersDetails.Where(u => u.UdUserId == user_id)
-                .Select(u => new
-                {
-                    u.UserId,
-                    u.Account,
-                    u.Location,
-                    u.Interests,
-                    // ...
-                }).FirstOrDefault();
-                return userEntity;
-            
-        }
 
         public List<RequestLog> GetRequestLogs()
         {

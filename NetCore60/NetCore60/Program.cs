@@ -196,9 +196,8 @@ app.UseCors("AllowFrontend");
 //});
 app.UseHttpsRedirection();
 
-// 启用身份验证
 app.UseAuthentication();
-// 启用授权
+
 app.UseAuthorization();
 
 app.MapControllers();

@@ -113,29 +113,6 @@ namespace NetCore60.Controllers
             }
         }
 
-        /// <summary> 
-        ///  獲取用户詳細訊息
-        /// </summary>
-        /// <param name="id">Member Id</param> 
-        /// <response code="200">OK</response> 
-        /// <response code="400">Not found</response> 
-        /// <returns></returns> 
-        /// <remarks>獲取用户詳細訊息</remarks> 
-        /// 
-        [Authorize]
-        [HttpGet("GetUserDetail/{id}")]
-        public IActionResult GetUserDetail(int id)
-        {
-            var user = _databaseService.GetUserDetail(id);
-
-            if (user == null)
-            {
-                //return NotFound();
-                return Ok("用戶名不存在");
-            }
-
-            return Ok(user);
-        }
 
         /// <summary> 
         ///     更新使用者密碼
@@ -155,35 +132,6 @@ namespace NetCore60.Controllers
             return result;
         }
 
-        [HttpPost("UpdateUserDetailByFormData")]
-        public IActionResult UploadMixedFormData([FromForm] VUsersDetailDTO _VUsersDetailDTO)
-        {
-            try
-            {
-                // 使用 System.Text.Json 或 Newtonsoft.Json 将 json 字符串反序列化为对象
-                // 这里假设您使用 System.Text.Json
-                //var userDetail = System.Text.Json.JsonSerializer.Deserialize<Object>(_VUsersDetailDTO);
-                //JsonDocument jsonDocument = JsonDocument.Parse(_VUsersDetailDTO);
-                var callbackResult = _databaseService.UpdateUserDetail(_VUsersDetailDTO);
-       
-                if (callbackResult?.GetType() == typeof(string))
-                {
-                    return Ok(callbackResult);// 非成功錯誤訊息
-                }
-                else
-                {
-                    var successMessage = "更新使用者詳細訊息成功";
-                    //return Ok("User details updated successfully");
-                    var result = new OkObjectResult(new { Message = successMessage, Data = callbackResult });
-                    return result;
-                }
-            }
-            catch (Exception ex)
-            {
-                return BadRequest($"Error: {ex.Message}");
-                //return StatusCode(StatusCodes.Status500InternalServerError, "Internal Server Error");
-            }
-        }
         /// <summary>
         /// 上傳圖片到伺服器
         /// </summary>
