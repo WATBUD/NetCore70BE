@@ -33,19 +33,15 @@ public partial class RndatingDbContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
-    public virtual DbSet<UserDetail> UserDetails { get; set; }
-
     public virtual DbSet<UserStock> UserStocks { get; set; }
 
     public virtual DbSet<VTagGroupDetail> VTagGroupDetails { get; set; }
 
     public virtual DbSet<VUserRolePermission> VUserRolePermissions { get; set; }
 
-    public virtual DbSet<VUsersDetail> VUsersDetails { get; set; }
-
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseMySql("server=127.0.0.1;database=RNDatingDB;user=louis;password=123456", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.1.0-mysql"));
+        => optionsBuilder.UseMySql("server=127.0.0.1;database=RNDatingDB;user=louis005;password=louis005", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.1.0-mysql"));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -232,6 +228,10 @@ public partial class RndatingDbContext : DbContext
             entity.Property(e => e.Account)
                 .HasMaxLength(100)
                 .HasColumnName("account");
+            entity.Property(e => e.Avatar)
+                .HasMaxLength(255)
+                .HasColumnName("avatar");
+            entity.Property(e => e.Birthday).HasColumnName("birthday");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp")
@@ -239,14 +239,47 @@ public partial class RndatingDbContext : DbContext
             entity.Property(e => e.Email)
                 .HasMaxLength(100)
                 .HasColumnName("email");
+            entity.Property(e => e.Gender)
+                .HasMaxLength(10)
+                .HasColumnName("gender");
+            entity.Property(e => e.Interests)
+                .HasColumnType("text")
+                .HasColumnName("interests");
+            entity.Property(e => e.IsBanned)
+                .HasDefaultValueSql("'0'")
+                .HasColumnName("is_banned");
+            entity.Property(e => e.Location)
+                .HasMaxLength(100)
+                .HasColumnName("location");
+            entity.Property(e => e.LookingFor)
+                .HasColumnType("enum('Friendship','Dating','Long-term Relationship','Other')")
+                .HasColumnName("looking_for");
             entity.Property(e => e.Password)
                 .HasMaxLength(100)
                 .HasColumnName("password");
+            entity.Property(e => e.PersonalDescription)
+                .HasColumnType("text")
+                .HasColumnName("personal_description");
+            entity.Property(e => e.PrivacySettings)
+                .HasColumnType("json")
+                .HasColumnName("privacy_settings");
+            entity.Property(e => e.ProfilePicture)
+                .HasMaxLength(255)
+                .HasColumnName("profile_picture");
+            entity.Property(e => e.RelationshipStatus)
+                .HasColumnType("enum('Single','Married','Divorced','Other')")
+                .HasColumnName("relationship_status");
+            entity.Property(e => e.SocialLinks)
+                .HasColumnType("json")
+                .HasColumnName("social_links");
             entity.Property(e => e.UpdatedAt)
                 .ValueGeneratedOnAddOrUpdate()
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp")
                 .HasColumnName("updated_at");
+            entity.Property(e => e.UserHasTag)
+                .HasColumnType("json")
+                .HasColumnName("user_has_tag");
             entity.Property(e => e.Username)
                 .HasMaxLength(50)
                 .HasColumnName("username");
@@ -272,59 +305,6 @@ public partial class RndatingDbContext : DbContext
                         j.IndexerProperty<int>("UserId").HasColumnName("user_id");
                         j.IndexerProperty<int>("RoleId").HasColumnName("role_id");
                     });
-        });
-
-        modelBuilder.Entity<UserDetail>(entity =>
-        {
-            entity.HasKey(e => e.UdUserId).HasName("PRIMARY");
-
-            entity.ToTable("user_detail");
-
-            entity.Property(e => e.UdUserId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("ud_user_id");
-            entity.Property(e => e.Avatar)
-                .HasMaxLength(255)
-                .HasColumnName("avatar");
-            entity.Property(e => e.Birthday).HasColumnName("birthday");
-            entity.Property(e => e.Gender)
-                .HasMaxLength(10)
-                .HasColumnName("gender");
-            entity.Property(e => e.Interests)
-                .HasColumnType("text")
-                .HasColumnName("interests");
-            entity.Property(e => e.IsBanned)
-                .HasDefaultValueSql("'0'")
-                .HasColumnName("is_banned");
-            entity.Property(e => e.Location)
-                .HasMaxLength(100)
-                .HasColumnName("location");
-            entity.Property(e => e.LookingFor)
-                .HasColumnType("enum('Friendship','Dating','Long-term Relationship','Other')")
-                .HasColumnName("looking_for");
-            entity.Property(e => e.PersonalDescription)
-                .HasColumnType("text")
-                .HasColumnName("personal_description");
-            entity.Property(e => e.PrivacySettings)
-                .HasColumnType("json")
-                .HasColumnName("privacy_settings");
-            entity.Property(e => e.ProfilePicture)
-                .HasMaxLength(255)
-                .HasColumnName("profile_picture");
-            entity.Property(e => e.RelationshipStatus)
-                .HasColumnType("enum('Single','Married','Divorced','Other')")
-                .HasColumnName("relationship_status");
-            entity.Property(e => e.SocialLinks)
-                .HasColumnType("json")
-                .HasColumnName("social_links");
-            entity.Property(e => e.UserHasTag)
-                .HasColumnType("json")
-                .HasColumnName("user_has_tag");
-
-            entity.HasOne(d => d.UdUser).WithOne(p => p.UserDetail)
-                .HasForeignKey<UserDetail>(d => d.UdUserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fk_userdetail_user");
         });
 
         modelBuilder.Entity<UserStock>(entity =>
@@ -380,6 +360,9 @@ public partial class RndatingDbContext : DbContext
                 .HasNoKey()
                 .ToView("v_user_role_permissions");
 
+            entity.Property(e => e.Password)
+                .HasMaxLength(100)
+                .HasColumnName("password");
             entity.Property(e => e.PermissionId).HasColumnName("permission_id");
             entity.Property(e => e.PermissionName)
                 .HasMaxLength(50)
@@ -388,71 +371,6 @@ public partial class RndatingDbContext : DbContext
             entity.Property(e => e.RoleName)
                 .HasMaxLength(50)
                 .HasColumnName("role_name");
-            entity.Property(e => e.UserId).HasColumnName("user_id");
-            entity.Property(e => e.Username)
-                .HasMaxLength(50)
-                .HasColumnName("username");
-        });
-
-        modelBuilder.Entity<VUsersDetail>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToView("V_UsersDetail");
-
-            entity.Property(e => e.Account)
-                .HasMaxLength(100)
-                .HasColumnName("account");
-            entity.Property(e => e.Birthday).HasColumnName("birthday");
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp")
-                .HasColumnName("created_at");
-            entity.Property(e => e.Email)
-                .HasMaxLength(100)
-                .HasColumnName("email");
-            entity.Property(e => e.Gender)
-                .HasMaxLength(10)
-                .HasColumnName("gender");
-            entity.Property(e => e.Interests)
-                .HasColumnType("text")
-                .HasColumnName("interests");
-            entity.Property(e => e.IsBanned)
-                .HasDefaultValueSql("'0'")
-                .HasColumnName("is_banned");
-            entity.Property(e => e.Location)
-                .HasMaxLength(100)
-                .HasColumnName("location");
-            entity.Property(e => e.LookingFor)
-                .HasColumnType("enum('Friendship','Dating','Long-term Relationship','Other')")
-                .HasColumnName("looking_for");
-            entity.Property(e => e.Password)
-                .HasMaxLength(100)
-                .HasColumnName("password");
-            entity.Property(e => e.PersonalDescription)
-                .HasColumnType("text")
-                .HasColumnName("personal_description");
-            entity.Property(e => e.PrivacySettings)
-                .HasColumnType("json")
-                .HasColumnName("privacy_settings");
-            entity.Property(e => e.ProfilePicture)
-                .HasMaxLength(255)
-                .HasColumnName("profile_picture");
-            entity.Property(e => e.RelationshipStatus)
-                .HasColumnType("enum('Single','Married','Divorced','Other')")
-                .HasColumnName("relationship_status");
-            entity.Property(e => e.SocialLinks)
-                .HasColumnType("json")
-                .HasColumnName("social_links");
-            entity.Property(e => e.UdUserId).HasColumnName("ud_user_id");
-            entity.Property(e => e.UpdatedAt)
-                .ValueGeneratedOnAddOrUpdate()
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp")
-                .HasColumnName("updated_at");
-            entity.Property(e => e.UserHasTag)
-                .HasColumnType("json")
-                .HasColumnName("user_has_tag");
             entity.Property(e => e.UserId).HasColumnName("user_id");
             entity.Property(e => e.Username)
                 .HasMaxLength(50)
