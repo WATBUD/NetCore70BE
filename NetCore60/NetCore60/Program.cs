@@ -104,11 +104,10 @@ builder.Services.AddControllers()
             });
 builder.Services.AddSwaggerGen(options =>
 {
-    //產生Swagger json
-    options.SwaggerDoc("G_Test", new OpenApiInfo { Title = "TestAPI V1", Version = "1.0" });
+    //options.SwaggerDoc("G_Test", new OpenApiInfo { Title = "TestAPI V1", Version = "1.0" });
     options.SwaggerDoc("G_User", new OpenApiInfo { Title = "Users API", Version = "1.0" });
     options.SwaggerDoc("G_Stocks", new OpenApiInfo { Title = "StockInformation API", Version = "2.0" });
-    options.SwaggerDoc("SwaggerGroupGuitarTutorial", new OpenApiInfo { Title = "GuitarTutorialAPI", Version = "1.0" });
+    //options.SwaggerDoc("SwaggerGroupGuitarTutorial", new OpenApiInfo { Title = "GuitarTutorialAPI", Version = "1.0" });
     options.AddSecurityDefinition("Token", new OpenApiSecurityScheme
     {
         Description = "直接輸入 JWT Token，不需加上 'Bearer ' 前綴。",
@@ -162,7 +161,7 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/G_User/swagger.json", "UsersAPI");//http
         //options.SwaggerEndpoint("/swagger/G_Test/swagger.json", "TestAPI");
         c.SwaggerEndpoint("/swagger/G_Stocks/swagger.json", "StockAPI");
-        c.SwaggerEndpoint("/swagger/SwaggerGroupGuitarTutorial/swagger.json", "GuitarTutorialAPI");
+        //c.SwaggerEndpoint("/swagger/SwaggerGroupGuitarTutorial/swagger.json", "GuitarTutorialAPI");
         c.RoutePrefix = "api";
         // 控制示例的最大显示大小
         c.DefaultModelExpandDepth(2); // 设置展开的深度

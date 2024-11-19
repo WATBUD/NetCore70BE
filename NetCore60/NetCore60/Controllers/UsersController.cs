@@ -36,17 +36,16 @@ namespace NetCore60.Controllers
             _context = context;
 
         }
-        //ActionResult<User> Can generate schema UI
-        /// <summary> 
-        ///     創造使用者        
-        /// </summary>
-        [HttpPost("CreateUser")]
-        public IActionResult Create([Required] string _account, [Required] string _password, [Required] string _email)
-        {
-            //string newUserId = _databaseService.InsertUserAccount(_account, _password, _email);
-            return Ok("");
-            //return CreatedAtAction(nameof(GetUserById), new { id = newUserId }, item);
-        }
+        ///// <summary> 
+        /////     創造使用者        
+        ///// </summary>
+        //[HttpPost("CreateUser")]
+        //public IActionResult Create([Required] string _account, [Required] string _password, [Required] string _email)
+        //{
+        //    //string newUserId = _databaseService.InsertUserAccount(_account, _password, _email);
+        //    return Ok("");
+        //    //return CreatedAtAction(nameof(GetUserById), new { id = newUserId }, item);
+        //}
 
         /// <summary> 
         /// 檢查用户基本訊息
@@ -90,35 +89,35 @@ namespace NetCore60.Controllers
 
 
 
-        /// <summary> 
-        ///  test_jwt_token
-        /// </summary>
-        [HttpPost("test_jwt_token")]
-        [Obsolete]
-        public IActionResult GetJWTToken()
-        {
-            var token = JsonWebToken.GenerateJwtToken(10);
-            return Ok(new { token });
-        }
+        ///// <summary> 
+        /////  test_jwt_token
+        ///// </summary>
+        //[HttpPost("test_jwt_token")]
+        //[Obsolete]
+        //public IActionResult GetJWTToken()
+        //{
+        //    var token = JsonWebToken.GenerateJwtToken(10);
+        //    return Ok(new { token });
+        //}
 
-        /// <summary> 
-        ///  驗證Token
-        /// </summary>
-        [HttpPost("ValidateToken")]
-        public IActionResult ValidateToken([Required] string token)
-        {
-            var user = TokenStore.FindUserIdByToken(token);
-            if (user == null)
-            {
-                // Return a response indicating the token does not exist
-                return Ok("token does not exist");
-            }
-            else
-            {
-                // Return the user ID if the token exists
-                return Ok(user);
-            }
-        }
+        ///// <summary> 
+        /////  驗證Token
+        ///// </summary>
+        //[HttpPost("ValidateToken")]
+        //public IActionResult ValidateToken([Required] string token)
+        //{
+        //    var user = TokenStore.FindUserIdByToken(token);
+        //    if (user == null)
+        //    {
+        //        // Return a response indicating the token does not exist
+        //        return Ok("token does not exist");
+        //    }
+        //    else
+        //    {
+        //        // Return the user ID if the token exists
+        //        return Ok(user);
+        //    }
+        //}
 
 
         //[Authorize]
